@@ -70,6 +70,7 @@
 		
 		this.tweenMethod = tweenMethod;
 		this.cycle = cycle;
+		this.movementFunction = movementFunction;
 		
 		this.displayPoints = [];
 		this.displayLines = [];
@@ -105,7 +106,7 @@
 			
 		this.displayLines.push(createLine(points));
 		
-		this.displayLines[0].attrs.points.push({x: points[0].x, y: points[0].y}); // Closing the path.
+		this.displayLines[0].attrs.points.push(this.bezierPoints[0][0]); // Closing the path.
 		this.linesLayer.add(this.displayLines[0]);
 		
 		// The following levels:
@@ -189,7 +190,7 @@
 		},
 		
 		updateCircles: function(frame) {
-			for (var i=1; i < this.displayCurves.length; i++) {
+			for (var i=0; i < this.displayCurves.length; i++) {
 				for (var j=0; j < this.nbPoints; j++) {
 					this.displayPoints[i][j].attrs.x = this.bezierPoints[i][j].x;
 					this.displayPoints[i][j].attrs.y = this.bezierPoints[i][j].y;
@@ -199,6 +200,7 @@
 		
 		updateControlPoints: function(frame) {
 			this.coef = (frame.time % this.cycle) / this.cycle;
+			this.movementFunction(frame.time, this.bezierPoints[0]);
 			for (var i=1; i < this.displayCurves.length; i++) {
 				for (var j=0; j < this.nbPoints; j++) {
 					this.bezierPoints[i][j].x = (1-this.coef)*this.bezierPoints[i-1][j].x + this.coef*this.bezierPoints[i-1][(j+1)%this.nbPoints].x;
@@ -225,11 +227,19 @@
 	//var strokes = [1, 1, 2, 3, 4, 6];
 	var strokes2 = [1, 1, 2, 3, 4, 5, 6, 7];
 	
+	var move = function(frame, points) {
+		var period = 1000;
+		var delta = 2 * Math.PI / period + 0.01;
+		for(var i = 0; i < points.length; i++) {
+			points[i].x += (points.length-i)/2*Math.cos(frame*delta*0.017*(i+1));
+			points[i].y -= (points.length-i)/2*Math.sin(frame*delta*0.083*(i+1));
+		}
+	}
 	
 	//var demo = new BezierWandering(points, stage, 5000, colors, opacities, strokes, 20, 0, 0);
 	//demo.start();
 	
-	var demo2 = new BezierWandering(points2, stage, 10000, colors2, opacities2, strokes2, 30, 0, 0);
+	var demo2 = new BezierWandering(points2, stage, 5000, colors2, opacities2, strokes2, 10, 0, move);
 	demo2.start();
 	
 		</script>
