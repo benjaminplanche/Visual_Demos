@@ -1,0 +1,237 @@
+<!doctype html>
+<html>
+	<head>
+		<title>Bezier's Wandering</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<script src="lib/kinetic-v4.3.0.min.js"></script>
+		<script src="lib/tween.min.js"></script>
+		<style>
+			body {
+			margin: 0px;
+			padding: 0px;
+		  }
+		</style>
+	</head>
+	<body>
+		<div id="demo"></div>
+		<script>
+	/**
+     * Bezier constructor.
+	 * This class illustrates the process used in De Casteljau's algorithm to calculate Bezier curves.
+     * @constructor
+     * @param {Array[2D Point]} Set of control points
+	 * @param {Kinetic.Stage} Stage
+	 * @param {int} Cycle time in ms
+	 * @param {Array[Color]} Colors for each control level
+	 * @param {Array[float]} Opacities for each control level
+	 * @param {Array[int]} Size of the elements for each control level
+	 * @param {int} Lifespan of the trails - TODO: IMPROVE
+	 * @param {Tween.Method} Tweening method - TODO: IMPLEMENT THE USE
+	 * @param {Function(Array[2D Point], int):void} Function moving the control points - TODO: IMPLEMENT THE USE
+     */
+	BezierWandering = function(points, stage, cycle, colors, opacities, strokes, trailLife, tweenMethod, movementFunction) {
+
+	
+		var bez = this;	
+		function createLine(points) {
+			return new Kinetic.Line({
+				points: points.slice(),
+				stroke: 'grey',
+				strokeWidth: bez.strokes[0],
+				opacity: bez.opacities[0],
+				lineCap: 'round',
+				lineJoin: 'round'
+			});
+		}
+		
+		function createPoint(p, radius, color) {
+			return new Kinetic.Circle({
+				x: p.x,
+				y: p.y,
+				radius: radius,
+				fill: color,
+				stroke: 'black',
+				strokeWidth: radius/2
+			});
+		}
+		
+		function createCurve(p1, stroke, color) {
+			return new Kinetic.Line({
+				points: [{x: p1.x, y: p1.y}, p1],
+				stroke: color,
+				strokeWidth: stroke,
+				lineCap: 'round',
+				lineJoin: 'round'
+			});
+		}
+		
+		this.bezierPoints = [];
+		
+		this.tweenMethod = tweenMethod;
+		this.cycle = cycle;
+		
+		this.displayPoints = [];
+		this.displayLines = [];
+		this.displayCurves = [];
+		this.colors = colors;
+		this.opacities = opacities;
+		this.strokes = strokes;
+		
+		this.oldCoef = 0;
+		this.coef = 0;
+		this.nbPoints = points.length;
+		
+		this.linesLayer = new Kinetic.Layer();
+		this.pointsLayer = new Kinetic.Layer();
+		this.curvesLayer = new Kinetic.Layer();
+		this.curvesLayer.setClearBeforeDraw(false); // to keep the trail
+	
+		// Initialization of the various levels of controls (points and segments):
+		// Each level is composed of the "tweened" points, their trail (the curves), and the segments linking them.
+		
+		// 1st level (the givent controls points):
+		this.bezierPoints.push(points);
+		
+		this.displayPoints.push([]);
+		this.displayCurves.push([]);
+		for (var j=0; j < this.nbPoints; j++) {
+			this.displayPoints[0].push(createPoint(points[j], strokes[0], colors[0]));
+			this.pointsLayer.add(this.displayPoints[0][j]);
+			
+			this.displayCurves[0].push(createCurve(this.displayPoints[0][j], strokes[0], colors[0]));
+			this.curvesLayer.add(this.displayCurves[0][j]);
+		}
+			
+		this.displayLines.push(createLine(points));
+		
+		this.displayLines[0].attrs.points.push({x: points[0].x, y: points[0].y}); // Closing the path.
+		this.linesLayer.add(this.displayLines[0]);
+		
+		// The following levels:
+		for (var i=0; i < this.nbPoints; i++) {
+			var iPoints = [];
+			var iDisplayPoints = [];
+			var iDisplayCurves = [];
+			// We have to make a deep copy of the points:
+			for (var j=0; j < this.nbPoints; j++) {
+				iPoints.push({x: points[j].x, y: points[j].y});
+				
+				iDisplayPoints.push(createPoint(points[j], strokes[i+1], colors[i+1]));
+				this.pointsLayer.add(iDisplayPoints[j]);
+				
+				iDisplayCurves.push(createCurve(iPoints[j], strokes[i+1], colors[i+1]));
+				this.curvesLayer.add(iDisplayCurves[j]);
+			}
+			
+			this.bezierPoints.push(iPoints);
+			
+			this.displayPoints.push(iDisplayPoints);
+			this.displayCurves.push(iDisplayCurves);
+			this.displayLines.push(createLine(iPoints));
+			this.displayLines[i+1].attrs.points.push(this.bezierPoints[i+1][0]); // Closing the path.
+			this.linesLayer.add(this.displayLines[i+1]);
+		}
+		
+		// By drawing this almost transparent rectangle each frame over the trail, we create the blur effect:
+		this.curvesLayer.add(new Kinetic.Rect({
+			x: 0,
+			y: 0,
+			width: stage.attrs.width,
+			height: stage.attrs.height,
+			fill: 'white',
+			opacity: 1.0/trailLife,
+			strokeWidth: 0
+		  }));
+
+		stage.add(this.curvesLayer);
+		stage.add(this.linesLayer);
+		stage.add(this.pointsLayer);
+		
+		
+	}
+	
+	BezierWandering.prototype = {
+		start: function(){
+			var bez = this;
+			var animCalcAndLines = new Kinetic.Animation(function(frame) {
+				bez.updateControlPoints(frame);
+			}, this.linesLayer);
+			var animPoints = new Kinetic.Animation(function(frame) {
+				bez.updateCircles(frame);
+			}, this.pointsLayer);
+			var animCurves = new Kinetic.Animation(function(frame) {
+				bez.checkLoopBeforeDrawCurves(frame);
+			}, this.curvesLayer);	
+			this.curvesLayer.afterDraw(function() {
+				bez.updateCurvesPoints()
+			});
+		
+			animCalcAndLines.start();
+			animPoints.start();
+			animCurves.start();
+		},
+		
+		updateCurvesPoints: function() {
+			for (var i=0; i < this.displayCurves.length; i++) {
+				for (var j=0; j < this.nbPoints; j++) {
+					this.displayCurves[i][j].attrs.points[0].x = this.displayCurves[i][j].attrs.points[1].x;
+					this.displayCurves[i][j].attrs.points[0].y = this.displayCurves[i][j].attrs.points[1].y;
+				}
+			}
+		},
+		
+		checkLoopBeforeDrawCurves: function(frame) {
+			if (this.oldCoef > this.coef) { // We finished the loop:
+				this.updateCurvesPoints();
+			}
+			this.oldCoef = this.coef;
+		},
+		
+		updateCircles: function(frame) {
+			for (var i=1; i < this.displayCurves.length; i++) {
+				for (var j=0; j < this.nbPoints; j++) {
+					this.displayPoints[i][j].attrs.x = this.bezierPoints[i][j].x;
+					this.displayPoints[i][j].attrs.y = this.bezierPoints[i][j].y;
+				}
+			}
+		},
+		
+		updateControlPoints: function(frame) {
+			this.coef = (frame.time % this.cycle) / this.cycle;
+			for (var i=1; i < this.displayCurves.length; i++) {
+				for (var j=0; j < this.nbPoints; j++) {
+					this.bezierPoints[i][j].x = (1-this.coef)*this.bezierPoints[i-1][j].x + this.coef*this.bezierPoints[i-1][(j+1)%this.nbPoints].x;
+					this.bezierPoints[i][j].y = (1-this.coef)*this.bezierPoints[i-1][j].y + this.coef*this.bezierPoints[i-1][(j+1)%this.nbPoints].y;
+				}
+			}
+		}
+	}
+		
+	var stage = new Kinetic.Stage({
+		container: 'demo',
+		width: window.innerWidth-10,
+		height: window.innerHeight-10
+	});
+	
+	//var points = [{x: 100, y: 300}, {x: 500, y: 100}, {x: 700, y: 400}, {x: 400, y: 600}, {x: 250, y: 500}];
+	//var colors = ['black', 'blue', 'green', 'yellow', 'orange', 'red'];
+	
+	var points2 = [{x: 100, y: 300}, {x: 500, y: 100}, {x: 700, y: 200}, {x: 800, y: 400}, {x: 600, y: 500}, {x: 400, y: 650}, {x: 200, y: 500}, ];
+	var colors2 = ['black', 'marron', 'violet', 'blue', 'green', 'yellow', 'orange', 'red'];
+	
+	//var opacities = [20, 30, 40, 55, 70, 100];
+	var opacities2 = [15, 25, 35, 45, 55, 70, 80, 100];
+	//var strokes = [1, 1, 2, 3, 4, 6];
+	var strokes2 = [1, 1, 2, 3, 4, 5, 6, 7];
+	
+	
+	//var demo = new BezierWandering(points, stage, 5000, colors, opacities, strokes, 20, 0, 0);
+	//demo.start();
+	
+	var demo2 = new BezierWandering(points2, stage, 10000, colors2, opacities2, strokes2, 30, 0, 0);
+	demo2.start();
+	
+		</script>
+	</body>
+</html>
