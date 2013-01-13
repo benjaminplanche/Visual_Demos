@@ -233,6 +233,10 @@
 		for(var i = 0; i < points.length; i++) {
 			points[i].x += (points.length-i)/2*Math.cos(frame*delta*0.017*(i+1));
 			points[i].y -= (points.length-i)/2*Math.sin(frame*delta*0.083*(i+1));
+			if (points[i].x < 0) { points[i].x = -points[i].x; }
+			else if (points[i].x > stage.attrs.width) { points[i].x = 2 * stage.attrs.width - points[i].x; }
+			if (points[i].y < 0) { points[i].y = -points[i].y; }
+			else if (points[i].y > stage.attrs.height) { points[i].y = 2 * stage.attrs.height - points[i].y; }
 		}
 	}
 	
