@@ -49,7 +49,7 @@
 				x: p.x,
 				y: p.y,
 				radius: radius*p.z,
-				fill: color,
+				fill: 'rgb('+color[0]+','+color[1]+','+color[2]+')',
 				stroke: 'black',
 				opacity: opacity,
 				strokeWidth: radius*p.z/2
@@ -59,7 +59,7 @@
 		function createCurve(p1, stroke, color, opacity) {
 			return new Kinetic.Line({
 				points: [{x: p1.x, y: p1.y}, p1],
-				stroke: color,
+				stroke: 'rgb('+color[0]+','+color[1]+','+color[2]+')',
 				opacity: opacity,
 				strokeWidth: stroke*p1.z,
 				lineCap: 'round',
@@ -76,7 +76,13 @@
 		this.displayPoints = [];
 		this.displayLines = [];
 		this.displayCurves = [];
-		this.colors = colors;
+		
+		this.colors = colors.slice();
+		this.oldColors = colors.slice();
+		this.newColors = colors.slice();
+		this.changeColorsStart = 0;
+		this.changeColorsDuration = 0;
+		
 		this.opacities = opacities;
 		this.strokes = strokes;
 		
@@ -160,13 +166,84 @@
 			bez.checkLoopBeforeDrawCurves(frame);
 		}, this.curvesLayer);	
 		this.curvesLayer.afterDraw(function() {
-			bez.updateCurvesPoints()
+			bez.updateCurvesPoints();
 		});
 	
 		
 	}
 	
 	BezierWandering.prototype = {
+		setColors: function(colors, time) {
+			for (var i=0; i < colors.length; i++) {
+				this.oldColors[i] = this.colors[i].slice();
+				this.newColors[i] = colors[i].slice();
+			}
+			this.changeColorsElapsed = 0;
+			this.changeColorsDuration = time;
+//			var bez = this;
+//			var i = 0;
+//			var tweens = [];
+//			this.colors.forEach(function(color) {
+//				tweens.push(new TWEEN.Tween( color )
+//				.to( colors[i], time )
+//				.easing( TWEEN.Easing.Cubic.Out )
+//				.onUpdate( function () {
+//					color = this;
+//					/*for (var i=0; i < (bez.nbPoints+1); i++) {
+//						for (var j=0; j < bez.nbPoints; j++) {
+//							bez.displayPoints[i][j].attrs.fill = 'rgb('+this[i][0]+','+this[i][1]+','+this[i][2]+')';
+//							bez.displayCurves[i][j].attrs.stroke = 'rgb('+this[i][0]+','+this[i][1]+','+this[i][2]+')';
+//						}
+//					}*/
+//				})
+//				.onComplete( function () {
+//					bez.areColorsChanging = false;
+//				})
+//				.start());
+//				i++;
+//			});
+//			
+//			this.areColorsChanging = true;
+//			
+//			function updateTween() {
+//				setTimeout(updateTween, 5);
+//				TWEEN.update();
+//			}
+//			updateTween();
+		}, 
+		
+		tweenColor: function(frame) {
+			this.changeColorsElapsed += frame.timeDiff;
+			var elapsed = this.changeColorsElapsed / this.changeColorsDuration;
+			elapsed = elapsed > 1 ? 1 : elapsed;
+			for (var i=0; i < (this.nbPoints+1); i++) {
+				// Calculating new current color:
+				for (var j=0; j < 3; j++) {
+					this.colors[i][j] = (1.0-elapsed)*this.oldColors[i][j] + elapsed*this.newColors[i][j];
+				}
+				
+				// Applying it:
+				for (var j=0; j < this.nbPoints; j++) {
+					this.displayPoints[i][j].setFill('rgb('+this.colors[i][0]+','+this.colors[i][1]+','+this.colors[i][2]+')');
+					this.displayCurves[i][j].setStroke('rgb('+this.colors[i][0]+','+this.colors[i][1]+','+this.colors[i][2]+')');
+				}
+			}
+			if ( elapsed == 1 ) {
+				this.changeColorsDuration = 0;
+			}
+		},
+		
+		setOpacities: function(opacities) {
+			for (var i=0; i < (this.nbPoints+1); i++) {
+				for (var j=0; j < this.nbPoints; j++) {
+					this.displayPoints[i][j].attrs.opacity = opacities[i];
+					this.displayCurves[i][j].attrs.opacity = opacities[i];
+				}
+				
+				this.displayLines[i].attrs.opacity = opacities[0];
+			}
+		}, 
+		
 		start: function(){
 			this.animCalcAndLines.start();
 			this.animPoints.start();
@@ -218,6 +295,10 @@
 					this.bezierPoints[i][j].z = (1-this.coef)*this.bezierPoints[i-1][j].z + this.coef*this.bezierPoints[i-1][(j+1)%this.nbPoints].z;
 				}
 			}
+			
+			if (this.changeColorsDuration != 0) {
+				this.tweenColor(frame);
+			}
 		}
 	}
 		
@@ -233,9 +314,15 @@
 	
 	var points2 = [{x: 100, y: 300, z: 1}, {x: 500, y: 100, z: 4}, {x: 700, y: 200, z: 2}, {x: 800, y: 400, z: 3}, {x: 600, y: 500, z: 1}, {x: 400, y: 650, z: 2}, {x: 200, y: 500, z: 1} ];
 	var colors2 = ['black', 'marron', 'violet', 'blue', 'green', 'yellow', 'orange', 'red'];
+	var colors2Hexa = [[0x00,0x00,0x00], [0x77,0x66,0x22], [0xaa,0x00,0xaa], [0x00,0x00,0xff], [0x00,0xff,0x00], [0xff,0xff,0x00], [0xff,0xaa,0x00], [0xff,0x00,0x00]];
+	var colors3Hexa = [[0xaa,0x00,0xaa], [0x00,0x00,0xff], [0x00,0xff,0x00], [0xff,0xff,0x00], [0xff,0xaa,0x00], [0xff,0x00,0x00], [0x00,0x00,0x00], [0x77,0x66,0x22]];
+	var colorsGrey = ['#000000', '#111111', '#333333', '#555555', '#777777', '#999999', '#bbbbbb', '#dddddd'];
+	var colorsGreyHexa = [[0x00,0x00,0x00], [0x11,0x11,0x11], [0x33,0x33,0x33], [0x55,0x55,0x55], [0x77,0x77,0x77], [0x99,0x99,0x99], [0xbb,0xbb,0xbb], [0xdd,0xdd,0xdd]];
 	
 	//var opacities = [20, 30, 40, 55, 70, 100];
 	var opacities2 = [0.20, 0.30, 0.40, 0.50, 0.60, 0.70, 0.85, 1];
+	var opacitiesGrey = [0.10, 0.15, 0.20, 0.30, 0.40, 0.50, 0.60, 0.75];
+	
 	//var strokes = [1, 1, 2, 3, 4, 6];
 	var strokes2 = [1, 1, 2, 3, 4, 5, 6, 7];
 	
@@ -261,8 +348,15 @@
 	//var demo = new BezierWandering(points, stage, 5000, colors, opacities, strokes, 20, 0, 0);
 	//demo.start();
 	
-	var demo2 = new BezierWandering(points2, stage, 10000, colors2, opacities2, strokes2, 10, 0, move);
+	var demo2 = new BezierWandering(points2, stage, 10000, colors3Hexa, opacitiesGrey, strokes2, 10, 0, move);
 	demo2.start();
+	demo2.setColors(colors2Hexa, 3000);
+	
+	colors2Hexa.forEach(function(entry) {
+    console.log(entry);
+});
+	
+	//demo2.setOpacities(opacities2);
 	
 		</script>
 	</body>
