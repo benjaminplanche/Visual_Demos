@@ -20,7 +20,7 @@
      * Bezier constructor.
 	 * This class illustrates the process used in De Casteljau's algorithm to calculate Bezier curves.
      * @constructor
-     * @param {Array[2D Point]} Set of control points
+     * @param {Array[3D Point]} Set of control points
 	 * @param {Kinetic.Stage} Stage
 	 * @param {int} Cycle time in ms
 	 * @param {Array[Color]} Colors for each control level
@@ -28,10 +28,9 @@
 	 * @param {Array[int]} Size of the elements for each control level
 	 * @param {int} Lifespan of the trails - TODO: IMPROVE
 	 * @param {Tween.Method} Tweening method - TODO: IMPLEMENT THE USE
-	 * @param {Function(Array[2D Point], int):void} Function moving the control points - TODO: IMPLEMENT THE USE
+	 * @param {Function(Array[3D Point], int):void} Function moving the control points
      */
 	BezierWandering = function(points, stage, cycle, colors, opacities, strokes, trailLife, tweenMethod, movementFunction) {
-
 	
 		var bez = this;	
 		function createLine(points) {
@@ -45,22 +44,24 @@
 			});
 		}
 		
-		function createPoint(p, radius, color) {
+		function createPoint(p, radius, color, opacity) {
 			return new Kinetic.Circle({
 				x: p.x,
 				y: p.y,
-				radius: radius,
+				radius: radius*p.z,
 				fill: color,
 				stroke: 'black',
-				strokeWidth: radius/2
+				opacity: opacity,
+				strokeWidth: radius*p.z/2
 			});
 		}
 		
-		function createCurve(p1, stroke, color) {
+		function createCurve(p1, stroke, color, opacity) {
 			return new Kinetic.Line({
 				points: [{x: p1.x, y: p1.y}, p1],
 				stroke: color,
-				strokeWidth: stroke,
+				opacity: opacity,
+				strokeWidth: stroke*p1.z,
 				lineCap: 'round',
 				lineJoin: 'round'
 			});
@@ -97,10 +98,10 @@
 		this.displayPoints.push([]);
 		this.displayCurves.push([]);
 		for (var j=0; j < this.nbPoints; j++) {
-			this.displayPoints[0].push(createPoint(points[j], strokes[0], colors[0]));
+			this.displayPoints[0].push(createPoint(points[j], strokes[0], colors[0], opacities[0]));
 			this.pointsLayer.add(this.displayPoints[0][j]);
 			
-			this.displayCurves[0].push(createCurve(this.displayPoints[0][j], strokes[0], colors[0]));
+			this.displayCurves[0].push(createCurve(this.displayPoints[0][j], strokes[0], colors[0], opacities[0]));
 			this.curvesLayer.add(this.displayCurves[0][j]);
 		}
 			
@@ -116,12 +117,12 @@
 			var iDisplayCurves = [];
 			// We have to make a deep copy of the points:
 			for (var j=0; j < this.nbPoints; j++) {
-				iPoints.push({x: points[j].x, y: points[j].y});
+				iPoints.push({x: points[j].x, y: points[j].y, z: points[j].z});
 				
-				iDisplayPoints.push(createPoint(points[j], strokes[i+1], colors[i+1]));
+				iDisplayPoints.push(createPoint(points[j], strokes[i+1], colors[i+1], opacities[i+1]));
 				this.pointsLayer.add(iDisplayPoints[j]);
 				
-				iDisplayCurves.push(createCurve(iPoints[j], strokes[i+1], colors[i+1]));
+				iDisplayCurves.push(createCurve(iPoints[j], strokes[i+1], colors[i+1], opacities[i+1]));
 				this.curvesLayer.add(iDisplayCurves[j]);
 			}
 			
@@ -149,28 +150,33 @@
 		stage.add(this.linesLayer);
 		stage.add(this.pointsLayer);
 		
+		this.animCalcAndLines = new Kinetic.Animation(function(frame) {
+			bez.updateControlPoints(frame);
+		}, this.linesLayer);
+		this.animPoints = new Kinetic.Animation(function(frame) {
+			bez.updateCircles(frame);
+		}, this.pointsLayer);
+		this.animCurves = new Kinetic.Animation(function(frame) {
+			bez.checkLoopBeforeDrawCurves(frame);
+		}, this.curvesLayer);	
+		this.curvesLayer.afterDraw(function() {
+			bez.updateCurvesPoints()
+		});
+	
 		
 	}
 	
 	BezierWandering.prototype = {
 		start: function(){
-			var bez = this;
-			var animCalcAndLines = new Kinetic.Animation(function(frame) {
-				bez.updateControlPoints(frame);
-			}, this.linesLayer);
-			var animPoints = new Kinetic.Animation(function(frame) {
-				bez.updateCircles(frame);
-			}, this.pointsLayer);
-			var animCurves = new Kinetic.Animation(function(frame) {
-				bez.checkLoopBeforeDrawCurves(frame);
-			}, this.curvesLayer);	
-			this.curvesLayer.afterDraw(function() {
-				bez.updateCurvesPoints()
-			});
+			this.animCalcAndLines.start();
+			this.animPoints.start();
+			this.animCurves.start();
+		},
 		
-			animCalcAndLines.start();
-			animPoints.start();
-			animCurves.start();
+		stop: function(){
+			this.animCalcAndLines.stop();
+			this.animPoints.stop();
+			this.animCurves.stop();
 		},
 		
 		updateCurvesPoints: function() {
@@ -178,6 +184,7 @@
 				for (var j=0; j < this.nbPoints; j++) {
 					this.displayCurves[i][j].attrs.points[0].x = this.displayCurves[i][j].attrs.points[1].x;
 					this.displayCurves[i][j].attrs.points[0].y = this.displayCurves[i][j].attrs.points[1].y;
+					this.displayCurves[i][j].attrs.strokeWidth = this.strokes[i]*this.bezierPoints[i][j].z;
 				}
 			}
 		},
@@ -194,6 +201,9 @@
 				for (var j=0; j < this.nbPoints; j++) {
 					this.displayPoints[i][j].attrs.x = this.bezierPoints[i][j].x;
 					this.displayPoints[i][j].attrs.y = this.bezierPoints[i][j].y;
+					this.displayPoints[i][j].attrs.radius = this.strokes[i]*this.bezierPoints[i][j].z;
+					this.displayPoints[i][j].attrs.strokeWidth = this.displayPoints[i][j].attrs.radius/2;
+					this.displayPoints[i][j].setZIndex(this.bezierPoints[i][j].z*100);
 				}
 			}
 		},
@@ -205,6 +215,7 @@
 				for (var j=0; j < this.nbPoints; j++) {
 					this.bezierPoints[i][j].x = (1-this.coef)*this.bezierPoints[i-1][j].x + this.coef*this.bezierPoints[i-1][(j+1)%this.nbPoints].x;
 					this.bezierPoints[i][j].y = (1-this.coef)*this.bezierPoints[i-1][j].y + this.coef*this.bezierPoints[i-1][(j+1)%this.nbPoints].y;
+					this.bezierPoints[i][j].z = (1-this.coef)*this.bezierPoints[i-1][j].z + this.coef*this.bezierPoints[i-1][(j+1)%this.nbPoints].z;
 				}
 			}
 		}
@@ -215,35 +226,42 @@
 		width: window.innerWidth-10,
 		height: window.innerHeight-10
 	});
+	stage.setListening(false);
 	
 	//var points = [{x: 100, y: 300}, {x: 500, y: 100}, {x: 700, y: 400}, {x: 400, y: 600}, {x: 250, y: 500}];
 	//var colors = ['black', 'blue', 'green', 'yellow', 'orange', 'red'];
 	
-	var points2 = [{x: 100, y: 300}, {x: 500, y: 100}, {x: 700, y: 200}, {x: 800, y: 400}, {x: 600, y: 500}, {x: 400, y: 650}, {x: 200, y: 500}, ];
+	var points2 = [{x: 100, y: 300, z: 1}, {x: 500, y: 100, z: 4}, {x: 700, y: 200, z: 2}, {x: 800, y: 400, z: 3}, {x: 600, y: 500, z: 1}, {x: 400, y: 650, z: 2}, {x: 200, y: 500, z: 1} ];
 	var colors2 = ['black', 'marron', 'violet', 'blue', 'green', 'yellow', 'orange', 'red'];
 	
 	//var opacities = [20, 30, 40, 55, 70, 100];
-	var opacities2 = [15, 25, 35, 45, 55, 70, 80, 100];
+	var opacities2 = [0.20, 0.30, 0.40, 0.50, 0.60, 0.70, 0.85, 1];
 	//var strokes = [1, 1, 2, 3, 4, 6];
 	var strokes2 = [1, 1, 2, 3, 4, 5, 6, 7];
 	
+	var period = 1000;
+	var delta1 = 2 * Math.PI / period * 0.017 + 0.001;	
+	var delta2 = 2 * Math.PI / period * 0.083 + 0.001;	
 	var move = function(frame, points) {
-		var period = 1000;
-		var delta = 2 * Math.PI / period + 0.01;
+		var t1 = frame*delta1;
+		var t2 = frame*delta2;
 		for(var i = 0; i < points.length; i++) {
-			points[i].x += (points.length-i)/2*Math.cos(frame*delta*0.017*(i+1));
-			points[i].y -= (points.length-i)/2*Math.sin(frame*delta*0.083*(i+1));
+			points[i].x += (points.length-i)/2*Math.cos(t1);
+			points[i].y -= (points.length-i)/2*Math.sin(t2*(i+1));
+			points[i].z -= Math.sin(t1*(i+1))/200/(i+1);
+			
 			if (points[i].x < 0) { points[i].x = -points[i].x; }
 			else if (points[i].x > stage.attrs.width) { points[i].x = 2 * stage.attrs.width - points[i].x; }
 			if (points[i].y < 0) { points[i].y = -points[i].y; }
 			else if (points[i].y > stage.attrs.height) { points[i].y = 2 * stage.attrs.height - points[i].y; }
+			if (points[i].z <= 0) { points[i].z = 0.1; }
 		}
 	}
 	
 	//var demo = new BezierWandering(points, stage, 5000, colors, opacities, strokes, 20, 0, 0);
 	//demo.start();
 	
-	var demo2 = new BezierWandering(points2, stage, 5000, colors2, opacities2, strokes2, 10, 0, move);
+	var demo2 = new BezierWandering(points2, stage, 10000, colors2, opacities2, strokes2, 10, 0, move);
 	demo2.start();
 	
 		</script>
