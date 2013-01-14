@@ -80,10 +80,15 @@
 		this.colors = colors.slice();
 		this.oldColors = colors.slice();
 		this.newColors = colors.slice();
-		this.changeColorsStart = 0;
+		this.changeColorsElapsed = 0;
 		this.changeColorsDuration = 0;
 		
-		this.opacities = opacities;
+		this.opacities = opacities.slice();
+		this.oldOpacities = opacities.slice();
+		this.newOpacities = opacities.slice();
+		this.changeOpacitiesElapsed = 0;
+		this.changeOpacitiesDuration = 0;
+		
 		this.strokes = strokes;
 		
 		this.oldCoef = 0;
@@ -180,46 +185,16 @@
 			}
 			this.changeColorsElapsed = 0;
 			this.changeColorsDuration = time;
-//			var bez = this;
-//			var i = 0;
-//			var tweens = [];
-//			this.colors.forEach(function(color) {
-//				tweens.push(new TWEEN.Tween( color )
-//				.to( colors[i], time )
-//				.easing( TWEEN.Easing.Cubic.Out )
-//				.onUpdate( function () {
-//					color = this;
-//					/*for (var i=0; i < (bez.nbPoints+1); i++) {
-//						for (var j=0; j < bez.nbPoints; j++) {
-//							bez.displayPoints[i][j].attrs.fill = 'rgb('+this[i][0]+','+this[i][1]+','+this[i][2]+')';
-//							bez.displayCurves[i][j].attrs.stroke = 'rgb('+this[i][0]+','+this[i][1]+','+this[i][2]+')';
-//						}
-//					}*/
-//				})
-//				.onComplete( function () {
-//					bez.areColorsChanging = false;
-//				})
-//				.start());
-//				i++;
-//			});
-//			
-//			this.areColorsChanging = true;
-//			
-//			function updateTween() {
-//				setTimeout(updateTween, 5);
-//				TWEEN.update();
-//			}
-//			updateTween();
 		}, 
 		
-		tweenColor: function(frame) {
+		tweenColors: function(frame) {
 			this.changeColorsElapsed += frame.timeDiff;
 			var elapsed = this.changeColorsElapsed / this.changeColorsDuration;
 			elapsed = elapsed > 1 ? 1 : elapsed;
 			for (var i=0; i < (this.nbPoints+1); i++) {
 				// Calculating new current color:
 				for (var j=0; j < 3; j++) {
-					this.colors[i][j] = (1.0-elapsed)*this.oldColors[i][j] + elapsed*this.newColors[i][j];
+					this.colors[i][j] = Math.round((1.0-elapsed)*this.oldColors[i][j] + elapsed*this.newColors[i][j]);
 				}
 				
 				// Applying it:
@@ -230,19 +205,37 @@
 			}
 			if ( elapsed == 1 ) {
 				this.changeColorsDuration = 0;
+				this.changeColorsElapsed = 0;
 			}
 		},
 		
-		setOpacities: function(opacities) {
-			for (var i=0; i < (this.nbPoints+1); i++) {
-				for (var j=0; j < this.nbPoints; j++) {
-					this.displayPoints[i][j].attrs.opacity = opacities[i];
-					this.displayCurves[i][j].attrs.opacity = opacities[i];
-				}
-				
-				this.displayLines[i].attrs.opacity = opacities[0];
-			}
+		setOpacities: function(opacities, time) {
+			this.oldOpacities = this.opacities.slice();
+			this.newOpacities = opacities.slice();
+			this.changeOpacitiesElapsed = 0;
+			this.changeOpacitiesDuration = time;
 		}, 
+		
+		tweenOpacities: function(frame) {
+			this.changeOpacitiesElapsed += frame.timeDiff;
+			var elapsed = this.changeOpacitiesElapsed / this.changeOpacitiesDuration;
+			elapsed = elapsed > 1 ? 1 : elapsed;
+			for (var i=0; i < (this.nbPoints+1); i++) {
+				// Calculating new current opacity:
+				this.opacities[i] = (1.0-elapsed)*this.oldOpacities[i] + elapsed*this.newOpacities[i];
+				
+				// Applying it:
+				for (var j=0; j < this.nbPoints; j++) {
+					this.displayPoints[i][j].setOpacity(this.opacities[i]);
+					this.displayCurves[i][j].setOpacity(this.opacities[i]);
+				}
+				this.displayLines[i].setOpacity(this.opacities[0]);
+			}
+			if ( elapsed == 1 ) {
+				this.changeOpacitiesDuration = 0;
+				this.changeOpacitiesElapsed = 0;
+			}
+		},
 		
 		start: function(){
 			this.animCalcAndLines.start();
@@ -283,6 +276,7 @@
 					this.displayPoints[i][j].setZIndex(this.bezierPoints[i][j].z*100);
 				}
 			}
+			
 		},
 		
 		updateControlPoints: function(frame) {
@@ -295,9 +289,12 @@
 					this.bezierPoints[i][j].z = (1-this.coef)*this.bezierPoints[i-1][j].z + this.coef*this.bezierPoints[i-1][(j+1)%this.nbPoints].z;
 				}
 			}
-			
+						
 			if (this.changeColorsDuration != 0) {
-				this.tweenColor(frame);
+				this.tweenColors(frame);
+			}
+			if (this.changeOpacitiesDuration != 0) {
+				this.tweenOpacities(frame);
 			}
 		}
 	}
@@ -348,13 +345,15 @@
 	//var demo = new BezierWandering(points, stage, 5000, colors, opacities, strokes, 20, 0, 0);
 	//demo.start();
 	
-	var demo2 = new BezierWandering(points2, stage, 10000, colors3Hexa, opacitiesGrey, strokes2, 10, 0, move);
+	var demo2 = new BezierWandering(points2, stage, 10000, colorsGreyHexa, opacitiesGrey, strokes2, 10, 0, move);
 	demo2.start();
-	demo2.setColors(colors2Hexa, 3000);
+	setTimeout(function() {
+		demo2.setColors(colors2Hexa, 1000);
+	}, 1000);
+	setTimeout(function() {
+		demo2.setOpacities(opacities2, 4000);
+	}, 5000);
 	
-	colors2Hexa.forEach(function(entry) {
-    console.log(entry);
-});
 	
 	//demo2.setOpacities(opacities2);
 	
