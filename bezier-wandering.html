@@ -5,7 +5,6 @@
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 		<script src="lib/kinetic-v4.3.0.min.js"></script>
-		<script src="lib/tween.min.js"></script>
 		<style>
 			body {
 			margin: 0px;
@@ -27,10 +26,9 @@
 	 * @param {Array[float]} Opacities for each control level
 	 * @param {Array[int]} Size of the elements for each control level
 	 * @param {int} Lifespan of the trails - TODO: IMPROVE
-	 * @param {Tween.Method} Tweening method - TODO: IMPLEMENT THE USE
 	 * @param {Function(Array[3D Point], int):void} Function moving the control points
      */
-	BezierWandering = function(points, stage, cycle, colors, opacities, strokes, trailLife, tweenMethod, movementFunction) {
+	BezierWandering = function(points, stage, cycle, colors, opacities, strokes, trailLife, movementFunction) {
 	
 		var bez = this;	
 		function createLine(points) {
@@ -377,7 +375,7 @@
 	//var demo = new BezierWandering(points, stage, 5000, colors, opacities, strokes, 20, 0, 0);
 	//demo.start();
 	
-	var demo2 = new BezierWandering(points2, stage, 10000, colorsGreyHexa, opacitiesGrey, strokes2, 10, 0, move);
+	var demo2 = new BezierWandering(points2, stage, 10000, colorsGreyHexa, opacitiesGrey, strokes2, 10, move);
 	demo2.start();
 	setTimeout(function() {
 		demo2.setColors(colors2Hexa, 1000);
