@@ -298,6 +298,18 @@
 			}
 		}
 	}
+	
+	//  Generic event abstractor
+	function addEvent( obj, evt, fn )
+	{
+		if ( 'undefined' != typeof obj.addEventListener ) {
+			obj.addEventListener( evt, fn, false );
+		}
+		else if ( 'undefined' != typeof obj.attachEvent ) {
+			obj.attachEvent( "on" + evt, fn );
+		}
+	}
+	
 		
 	var stage = new Kinetic.Stage({
 		container: 'demo',
@@ -323,15 +335,35 @@
 	//var strokes = [1, 1, 2, 3, 4, 6];
 	var strokes2 = [1, 1, 2, 3, 4, 5, 6, 7];
 	
+	
 	var period = 1000;
 	var delta1 = 2 * Math.PI / period * 0.017 + 0.001;	
 	var delta2 = 2 * Math.PI / period * 0.083 + 0.001;	
+	var mouseMovement = [0,0];
+	var prevMousePos = [0,0];
+	addEvent(document.getElementById( 'demo' ), 'mouseover', function(e)
+    {
+		mouseMovement[0] = 0;
+		mouseMovement[1] = 0;
+		prevMousePos[0] = e.clientX;
+		prevMousePos[1] = e.clientY;
+    });
+	addEvent(document.getElementById( 'demo' ), 'mousemove', function(e)
+    {
+		mouseMovement[0] = e.clientX - prevMousePos[0];
+		mouseMovement[1] = prevMousePos[1] - e.clientY;
+		prevMousePos[0] = e.clientX;
+		prevMousePos[1] = e.clientY;
+    });
+	
 	var move = function(frame, points) {
 		var t1 = frame*delta1;
 		var t2 = frame*delta2;
 		for(var i = 0; i < points.length; i++) {
-			points[i].x += (points.length-i)/2*Math.cos(t1);
-			points[i].y -= (points.length-i)/2*Math.sin(t2*(i+1));
+			var vect = [prevMousePos[0]-points[i].x, prevMousePos[1]-points[i].y];
+			var dist = Math.sqrt(vect[0]*vect[0] + vect[1]*vect[1])/100;
+			points[i].x += (points.length-i+1)/2*Math.cos(t1) + vect[0]/300*Math.cos(t2);
+			points[i].y -= (points.length-i+1)/2*Math.sin(t2*(i+1)) + vect[1]/300*Math.cos(t1);
 			points[i].z -= Math.sin(t1*(i+1))/200/(i+1);
 			
 			if (points[i].x < 0) { points[i].x = -points[i].x; }
