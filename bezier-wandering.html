@@ -74,9 +74,14 @@
 		this.displayLines = [];
 		this.displayCurves = [];
 		
-		this.colors = colors.slice();
-		this.oldColors = colors.slice();
-		this.newColors = colors.slice();
+		this.oldColors = [];
+		this.newColors = [];
+		this.colors = [];
+		for (var i=0; i < colors.length; i++) {
+			this.oldColors.push(colors[i].slice());
+			this.newColors.push(colors[i].slice());
+			this.colors.push(colors[i].slice());
+		}
 		this.changeColorsElapsed = 0;
 		this.changeColorsDuration = 0;
 		
@@ -234,6 +239,10 @@
 			}
 		},
 		
+		setMovementFunction: function(mvtFunc) {
+			this.movementFunction = mvtFunc;
+		},
+		
 		start: function(){
 			this.animCalcAndLines.start();
 			this.animPoints.start();
@@ -278,7 +287,9 @@
 		
 		updateControlPoints: function(frame) {
 			this.coef = (frame.time % this.cycle) / this.cycle;
-			this.movementFunction(frame.time, this.bezierPoints[0]);
+			if (typeof(this.movementFunction) == 'function') {
+				this.movementFunction(frame.time, this.bezierPoints[0]); // Move around
+			}
 			for (var i=1; i < this.displayCurves.length; i++) {
 				for (var j=0; j < this.nbPoints; j++) {
 					this.bezierPoints[i][j].x = (1-this.coef)*this.bezierPoints[i-1][j].x + this.coef*this.bezierPoints[i-1][(j+1)%this.nbPoints].x;
@@ -344,6 +355,15 @@
 		mouseMovement[1] = 0;
 		prevMousePos[0] = e.clientX;
 		prevMousePos[1] = e.clientY;
+		demo2.setMovementFunction(move);
+		demo2.setColors(colors2Hexa, 1000);
+		demo2.setOpacities(opacities2, 2000);
+    });
+	addEvent(document.getElementById( 'demo' ), 'mouseout', function(e)
+    {
+		demo2.setMovementFunction(null);
+		demo2.setColors(colorsGreyHexa, 1000);
+		demo2.setOpacities(opacitiesGrey, 2000);
     });
 	addEvent(document.getElementById( 'demo' ), 'mousemove', function(e)
     {
@@ -359,8 +379,8 @@
 		for(var i = 0; i < points.length; i++) {
 			var vect = [prevMousePos[0]-points[i].x, prevMousePos[1]-points[i].y];
 			var dist = Math.sqrt(vect[0]*vect[0] + vect[1]*vect[1])/100;
-			points[i].x += (points.length-i+1)/2*Math.cos(t1) + vect[0]/300*Math.cos(t2);
-			points[i].y -= (points.length-i+1)/2*Math.sin(t2*(i+1)) + vect[1]/300*Math.cos(t1);
+			points[i].x += (points.length-i+1)/2*Math.cos(t1) + vect[0]/500*Math.cos(t2);
+			points[i].y -= (points.length-i+1)/2*Math.sin(t2*(i+1)) + vect[1]/500*Math.cos(t1);
 			points[i].z -= Math.sin(t1*(i+1))/200/(i+1);
 			
 			if (points[i].x < 0) { points[i].x = -points[i].x; }
@@ -374,14 +394,10 @@
 	//var demo = new BezierWandering(points, stage, 5000, colors, opacities, strokes, 20, 0, 0);
 	//demo.start();
 	
-	var demo2 = new BezierWandering(points2, stage, 10000, colorsGreyHexa, opacitiesGrey, strokes2, 10, move);
+	var demo2 = new BezierWandering(points2, stage, 10000, colorsGreyHexa, opacitiesGrey, strokes2, 10, null);
 	demo2.start();
-	setTimeout(function() {
-		demo2.setColors(colors2Hexa, 1000);
-	}, 1000);
-	setTimeout(function() {
-		demo2.setOpacities(opacities2, 4000);
-	}, 5000);
+
+	
 	
 	
 	//demo2.setOpacities(opacities2);
