@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>404</title>
+		<script type="text/javascript" src="http://code.jquery.com/jquery-latest.pack.js"></script>
+		<style>
+
+@-moz-keyframes flyAway {
+	0% 		{background: green; transform: translateX(-100em) translateY(25em) scale(1) rotateY(720deg) rotateX(360deg);}
+	6%   	{background: green; transform: translateX(0em) translateY(0em) rotateY(30deg) rotateX(50deg);}
+	10%   	{background: green; transform: rotateY(0deg) rotateX(0deg);}
+	25%  	{background: yellow;}
+	30%		{transform: rotateY(0deg);}
+	32%		{transform: rotateY(30deg) rotateX(0deg);}
+	35% 	{transform: rotateY(10deg) rotateX(20deg);}
+	37% 	{transform: rotateY(60deg);}
+	39% 	{background: red; transform: rotateY(0deg) rotateX(0deg);}
+	50%		{transform: rotateY(0deg) rotateX(0deg);}
+	53% 	{transform: rotateY(50deg) rotateX(30deg);}
+	57% 	{transform: rotateY(5deg);}
+	60% 	{transform: rotateY(75deg) rotateX(0deg);}
+	62% 	{transform: rotateY(40deg) rotateX(20deg);}
+	65%  	{background: red; transform: rotateY(90deg) rotateX(0deg);}
+	80%  	{background: brown;}
+	84%  	{background: brown; transform: rotateY(20deg);}
+	90% 	{background: grey; transform: translateX(0em) translateY(0em) translateZ(0em) scale(1) rotateY(130deg) rotateX(0deg);}
+	99% 	{background: grey; transform: translateX(100em) translateY(-25em) translateZ(1000em) scale(0) rotateY(720deg) rotateX(-180deg);}
+	100% 	{transform: translateX(0em) translateY(0em) translateZ(0em) scale(0) rotateY(0deg) rotateX(0deg);}
+}
+
+body {
+	height: 37.5em;
+	overflow:hidden;
+}
+
+#demo {
+	width: 25em;
+	margin: auto;
+	padding: auto;
+}
+
+#scene {
+    height: 16em;
+    transform: translateZ(-50em);
+    transform-style: preserve-3d;
+	perspective: 400px;
+	perspective-origin: 120% 10%;
+}
+
+#scene .left {
+    transform: rotateY(90deg) translateZ(-25em) translateX(25em) translateY(-7em);
+}
+#scene .bottom {
+    transform: rotateX(90deg) translateZ(4em) translateX(-1.5em) translateY(-5em);
+}
+
+table {
+	width: 37.2em;
+	margin:auto;
+	margin-top: 25%;
+	transform-style: preserve-3d;
+	background: rgb(30,80,30);
+	padding: 1em;
+	border: 1em solid rgb(50,40,30);
+}
+
+tr {
+	margin:0;
+}
+
+td {
+	min-width: 3em;
+	height: 3em;
+	margin: .1em;
+}
+
+.x {
+	position: relative;
+	transform-style: preserve-3d;
+	left: 100px;
+	top:100px;
+	background: gray;
+	border-radius:500px 0px 500px 500px; 
+	width:3em; height:3em;
+	transform-origin: 100% 0%;
+		-ms-transform-origin: 100% 0%;
+			-webkit-transform-origin: 100% 0%;
+				-moz-transform-origin: 100% 0%;
+					-o-transform-origin: 100% 0%;
+	animation-iteration-count: infinite;
+	animation-name: flyAway;
+	font-size: 1.1em;
+	font-weight: bold;
+	text-align: center;
+}
+
+p {
+	width: 6em;
+	font-size: 5em;
+	text-align: center;
+	font-weight: bold;
+}
+		</style>
+		<script type="text/javascript">
+$(document).ready(function() {
+	// Almost everything done through CSS. JS is only here to add some randomness to the anim duration...
+	
+	function DefineAnimation(el) { // Restarting the animation with a random duration:
+		el.css('animation-name', 'none');
+		el.css('animation-duration', (16+Math.round(Math.random()*1200)/100)+'s');
+		setTimeout(function() {
+			el.css('animation-name', '');
+		}, 13);
+	}
+
+	$('#demo .x').each(function(index) {
+		$(this).text([4,0,4][index%3]); // That's ugly. I love it.
+		DefineAnimation($(this));
+		$(this).bind('animationiteration', function(name) {
+			DefineAnimation($(this));
+		});
+	});
+});
+		</script>
+	</head>
+    <body>
+		<div id="demo"><div id="scene">
+			<div class="left">
+				<table>
+					<tr><td class="x"></td>	<td></td>	<td class="x"></td>	<td></td>	<td class="x"></td>	<td class="x"></td>	<td class="x"></td>	<td></td>	<td class="x"></td>	<td></td>	<td class="x"></td></tr>
+					<tr><td class="x"></td>	<td></td>	<td class="x"></td>	<td></td>	<td class="x"></td>	<td></td>	<td class="x"></td>	<td></td>	<td class="x"></td>	<td></td>	<td class="x"></td></tr>
+					<tr><td class="x"></td>	<td class="x"></td>	<td class="x"></td>	<td></td>	<td class="x"></td>	<td></td>	<td class="x"></td>	<td></td>	<td class="x"></td>	<td class="x"></td>	<td class="x"></td></tr>
+					<tr><td></td>	<td></td>	<td class="x"></td>	<td></td>	<td class="x"></td>	<td></td>	<td class="x"></td>	<td></td>	<td></td>	<td></td>	<td class="x"></td></tr>
+					<tr><td></td>	<td></td>	<td class="x"></td>	<td></td>	<td class="x"></td>	<td class="x"></td>	<td class="x"></td>	<td></td>	<td></td>	<td></td>	<td class="x"></td></tr>
+				</table>
+			</div>
+			<p class="bottom">404<br/>Error<br/>-<br/>This page doesn't exist.</p>
+		</div></div>
+	</body>
+</html>
