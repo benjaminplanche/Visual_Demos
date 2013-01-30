@@ -331,10 +331,10 @@
 	
 	var points2 = [{x: 100, y: 300, z: 1}, {x: 500, y: 100, z: 4}, {x: 700, y: 200, z: 2}, {x: 800, y: 400, z: 3}, {x: 600, y: 500, z: 1}, {x: 400, y: 650, z: 2}, {x: 200, y: 500, z: 1} ];
 	var colors2 = ['black', 'marron', 'violet', 'blue', 'green', 'yellow', 'orange', 'red'];
-	var colors2Hexa = [[0x00,0x00,0x00], [0x77,0x66,0x22], [0xaa,0x00,0xaa], [0x00,0x00,0xff], [0x00,0xff,0x00], [0xff,0xff,0x00], [0xff,0xaa,0x00], [0xff,0x00,0x00]];
+	var colors2Hexa = [[0x00,0x00,0x00], [0x77,0x66,0x22], [0xaa,0x00,0xaa], [0x00,0x00,0xff], [0x00,0xff,0x00], [0xff,0xff,0x00], [0xff,0x88,0x00], [0xff,0x00,0x00]];
 	var colors3Hexa = [[0xaa,0x00,0xaa], [0x00,0x00,0xff], [0x00,0xff,0x00], [0xff,0xff,0x00], [0xff,0xaa,0x00], [0xff,0x00,0x00], [0x00,0x00,0x00], [0x77,0x66,0x22]];
 	var colorsGrey = ['#000000', '#111111', '#333333', '#555555', '#777777', '#999999', '#bbbbbb', '#dddddd'];
-	var colorsGreyHexa = [[0x00,0x00,0x00], [0x11,0x11,0x11], [0x33,0x33,0x33], [0x55,0x55,0x55], [0x77,0x77,0x77], [0x99,0x99,0x99], [0xbb,0xbb,0xbb], [0xdd,0xdd,0xdd]];
+	var colorsGreyHexa = [[0xdd,0xdd,0xdd], [0xbb,0xbb,0xbb], [0x99,0x99,0x99], [0x77,0x77,0x77], [0x55,0x55,0x55], [0x33,0x33,0x33], [0x11,0x11,0x11], [0x00,0x00,0x00]];
 	
 	//var opacities = [20, 30, 40, 55, 70, 100];
 	var opacities2 = [0.20, 0.30, 0.40, 0.50, 0.60, 0.70, 0.85, 1];
@@ -349,6 +349,7 @@
 	var delta2 = 2 * Math.PI / period * 0.083 + 0.001;	
 	var mouseMovement = [0,0];
 	var prevMousePos = [0,0];
+
 	addEvent(document.getElementById( 'demo' ), 'mouseover', function(e)
     {
 		mouseMovement[0] = 0;
@@ -357,13 +358,13 @@
 		prevMousePos[1] = e.clientY;
 		demo2.setMovementFunction(move);
 		demo2.setColors(colors2Hexa, 1000);
-		demo2.setOpacities(opacities2, 2000);
+		demo2.setOpacities(opacities2, 8000);
     });
 	addEvent(document.getElementById( 'demo' ), 'mouseout', function(e)
     {
 		demo2.setMovementFunction(null);
 		demo2.setColors(colorsGreyHexa, 1000);
-		demo2.setOpacities(opacitiesGrey, 2000);
+		demo2.setOpacities(opacitiesGrey, 8000);
     });
 	addEvent(document.getElementById( 'demo' ), 'mousemove', function(e)
     {
@@ -376,17 +377,19 @@
 	var move = function(frame, points) {
 		var t1 = frame*delta1;
 		var t2 = frame*delta2;
+	
 		for(var i = 0; i < points.length; i++) {
 			var vect = [prevMousePos[0]-points[i].x, prevMousePos[1]-points[i].y];
 			var dist = Math.sqrt(vect[0]*vect[0] + vect[1]*vect[1])/100;
-			points[i].x += (points.length-i+1)/2*Math.cos(t1) + vect[0]/500*Math.cos(t2);
-			points[i].y -= (points.length-i+1)/2*Math.sin(t2*(i+1)) + vect[1]/500*Math.cos(t1);
+			
+			points[i].x += (i+1)/2*Math.cos(t1) + vect[0]/400*Math.cos(t2);
+			points[i].y -= (points.length-i+1)/2*Math.sin(t2*(i+1)) + vect[1]/400*Math.cos(t1);
 			points[i].z -= Math.sin(t1*(i+1))/200/(i+1);
 			
-			if (points[i].x < 0) { points[i].x = -points[i].x; }
-			else if (points[i].x > stage.attrs.width) { points[i].x = 2 * stage.attrs.width - points[i].x; }
-			if (points[i].y < 0) { points[i].y = -points[i].y; }
-			else if (points[i].y > stage.attrs.height) { points[i].y = 2 * stage.attrs.height - points[i].y; }
+			if (points[i].x < 20) { points[i].x = 20; }
+			else if (points[i].x > (stage.attrs.width-20)) { points[i].x = stage.attrs.width-20; }
+			if (points[i].y < 20) { points[i].y = 20; }
+			else if (points[i].y > (stage.attrs.height-20)) { points[i].y = stage.attrs.height-20; }
 			if (points[i].z <= 0) { points[i].z = 0.1; }
 		}
 	}
@@ -396,12 +399,6 @@
 	
 	var demo2 = new BezierWandering(points2, stage, 10000, colorsGreyHexa, opacitiesGrey, strokes2, 10, null);
 	demo2.start();
-
-	
-	
-	
-	//demo2.setOpacities(opacities2);
-	
 		</script>
 	</body>
 </html>
