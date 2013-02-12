@@ -3,128 +3,6 @@
     <head>
         <meta charset="utf-8" />
         <title>404</title>
-		<script type="text/javascript" src="http://code.jquery.com/jquery-latest.pack.js"></script>
-		<script type="text/javascript" src="http://raw.github.com/infusion/jQuery-xcolor/master/jquery.xcolor.min.js"></script>
-		<script type="text/javascript">
-				
-			$(document).ready(function() {
-				(function() {
-					var requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame ||
-						  window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
-					window.requestAnimationFrame = requestAnimationFrame;
-				})();
-
-				function TraverseChildNodes(node, callback) {
-					var next;
-					if (node.nodeType === 1) { // (Element node)
-						if (node = node.firstChild) {
-							do {
-								// Recursively call TraverseChildNodes on each child node
-								next = node.nextSibling;
-								TraverseChildNodes(node, callback);
-							} while(node = next);
-						}
-					} else if (node.nodeType === 3) { // (Text node)
-						callback(node);
-					}
-				 
-				}
-				
-				function SpanSplit(node) {
-					var temp = document.createElement('div');
-					temp.innerHTML = '<span style="position:relative;">' + node.data.split('').join('</span><span style="position:relative;">') + '</span>';
-					// Extract produced nodes and insert them before original textNode:
-					var p = node.parentNode;
-					while (temp.firstChild) {
-						node.parentNode.insertBefore(temp.firstChild, node);
-					}
-					// Remove original text-node:
-					node.parentNode.removeChild(node);	
-				}
-				
-				TraverseChildNodes($('div')[0], SpanSplit);
-				
-				//$('p').text(function(i, v) {
-				//	return '<span>' + v.split('').join('</span><span>') + '</span>';   
-				//});
-
-				//var textNodes = $('p').contents().filter( isTextNode );
-				//textNodes.each(function( index ) {
-				//	var test = $(this).text();
-				//	$(this).text('<span></span>');
-				//});
-				//$('p').html('<span>' + $('p').text().split('').join('</span><span>') + '</span>');
-				var distValues = [];
-				var middlePosition = { x: Math.round($('div').width()/2), y: Math.round($('div').height()/2)};
-				var textDecorations = ['none', 'overline', 'line-through', 'underline'];
-				var dim = { x: $('div').width(), y: $('div').height()};
-				var timer = 0;
-				function animate() {
-
-					requestAnimationFrame( animate );
-					
-					var orig = { x: timer*dim.x/100, y: timer*dim.y/100 };
-					
-					distValues.forEach(function (spanList, dist, array) {
-						var coef = dist * timer;
-						var coef17 = coef*0.00017;
-						var cos17 = Math.cos(coef17);
-						var left = (Math.round(cos17*10))+'px';
-						var top = (Math.round(Math.sin(coef17)*10))+'px';
-					
-						var r = 127+Math.round(cos17*127);
-						var g = 127+Math.round(Math.cos(coef*0.00083)*127);
-						var b = 127+Math.round(Math.sin(coef*0.00083)*127);
-						var color = 'rgb('+r+','+g+','+b+')';
-						spanList.forEach(function (span, id, array) {
-							//var xRelat = span.attr('x') - orig.x;
-							//var yRelat = span.attr('y') - orig.y;
-							//var nDist = Math.sqrt(xRelat*xRelat+yRelat*yRelat)*timer*0.314 / 600;
-							//var intensity = Math.round(nDist / 600 * 255);
-							//span.css('color', 'rgb('+(127+Math.cos(nDist*0.17)*127)+','+(127+Math.cos(nDist*0.83)*255)+','+(127+Math.sin(nDist*0.83)*255)+')');
-							
-							span.css('color', color);
-							span.css('left', left);
-							span.css('top', top);
-						});
-					});
-					
-					//$( "span" ).each(function( index ) {
-					//	var x = Math.round($(this).position().left - orig.x);
-					//	var y = Math.round($(this).position().top - orig.y);
-					//	var dist = Math.round(Math.sqrt(x*x+y*y));
-					//	var coef = dist * timer / 1000;
-					//	var r = 127+Math.round(Math.cos(coef*0.17)*127);
-					//	var g = 127+Math.round(Math.cos(coef*0.83)*127);
-					//	var b = 127+Math.round(Math.sin(coef*0.83)*127);
-					//	$(this).css('color', 'rgb('+r+','+g+','+b+')');
-					//});
-					
-					$( 'a span' ).each(function() {
-						$(this).css('color', $.xcolor.darken($(this).css('color'), 2));
-					});
-					
-					timer += 0.2;
-				}
-				
-				$( 'span' ).each(function( index ) {
-					var x = Math.round($(this).position().left - middlePosition.x);
-					var y = Math.round($(this).position().top - middlePosition.y);
-					var dist = Math.round(Math.sqrt(x*x+y*y));
-					if (distValues[dist] == null) {
-						distValues[dist] = [$(this)];
-					}
-					else {
-						distValues[dist].push($(this));
-					}
-					$(this).attr('x', x);
-					$(this).attr('y', y);
-					$(this).attr('dist', dist);
-				});
-				
-				animate();
-			});
-		</script>	
     </head>
     <body>
 		<div style="text-align:justify;font-size:2em;width:25em;margin:auto;padding:auto;">
@@ -138,4 +16,100 @@
 			<p style="margin:-.2em;text-align:justify;font-size:0.85em;font-style:italic;">Curabitur a vehicula sapien. Integer <small>Please leave while you can</small> porttitor erat sed felis dapibus sodales. Phasellus <small>too late, too late, it has always been...</small> adipiscing facilisis urna ac auctor.</p>
 			<p>You're not another brick in the DOM, another chip in the herd. Through your sockets, Life and soul transpire.</p><p style="margin:0;text-align:center;">Semantic me away</p></div>
 	</body>
+	<script type="text/javascript" src="http://code.jquery.com/jquery-latest.pack.js"></script>
+	<script type="text/javascript" src="http://raw.github.com/infusion/jQuery-xcolor/master/jquery.xcolor.min.js"></script>
+	<script type="text/javascript">
+			
+		$(document).ready(function() {
+			(function() {
+				var requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame ||
+					  window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
+				window.requestAnimationFrame = requestAnimationFrame;
+			})();
+
+			function TraverseChildNodes(node, callback) {
+				var next;
+				if (node.nodeType === 1) { // (Element node)
+					if (node = node.firstChild) {
+						do {
+							// Recursively call TraverseChildNodes on each child node
+							next = node.nextSibling;
+							TraverseChildNodes(node, callback);
+						} while(node = next);
+					}
+				} else if (node.nodeType === 3) { // (Text node)
+					callback(node);
+				}
+			 
+			}
+			
+			function SpanSplit(node) {
+				var temp = document.createElement('div');
+				temp.innerHTML = '<span style="position:relative;">' + node.data.split('').join('</span><span style="position:relative;">') + '</span>';
+				// Extract produced nodes and insert them before original textNode:
+				var p = node.parentNode;
+				while (temp.firstChild) {
+					node.parentNode.insertBefore(temp.firstChild, node);
+				}
+				// Remove original text-node:
+				node.parentNode.removeChild(node);	
+			}
+			
+			var distValues = [];
+			var middlePosition = { x: Math.round($('div').width()/2), y: Math.round($('div').height()/2)};
+			var dim = { x: $('div').width(), y: $('div').height()};
+			var timer = 0;
+			function animate() {
+
+				requestAnimationFrame( animate );
+				
+				var orig = { x: timer*dim.x/100, y: timer*dim.y/100 };
+				
+				// Apply the psyche transform depending on the distance to the chosen point:
+				distValues.forEach(function (spanList, dist, array) {
+					var coef = dist * timer;
+					var coef17 = coef*0.00017;
+					var coef83 = coef*0.00083;
+					var cos17 = Math.cos(coef17);
+					var left = (Math.round(cos17*10))+'px';
+					var top = (Math.round(Math.sin(coef17)*10))+'px';
+				
+					var r = 127+Math.round(cos17*127);
+					var g = 127+Math.round(Math.cos(coef83)*127);
+					var b = 127+Math.round(Math.sin(coef83)*127);
+					var color = 'rgb('+r+','+g+','+b+')';
+					spanList.forEach(function (span, id, array) {
+						span.css('color', color);
+						span.css('left', left);
+						span.css('top', top);
+					});
+				});
+
+				$( 'a span' ).each(function() {
+					$(this).css('color', $.xcolor.darken($(this).css('color'), 2)); // Let's make the links stand out a bit, if you want to escape.
+				});
+				
+				timer += 0.2;
+			}
+			
+			// Split the data and for each letter, calculate its position:
+			TraverseChildNodes($('div')[0], SpanSplit);
+			$( 'span' ).each(function( index ) {
+				var x = Math.round($(this).position().left - middlePosition.x);
+				var y = Math.round($(this).position().top - middlePosition.y);
+				var dist = Math.round(Math.sqrt(x*x+y*y));
+				if (distValues[dist] == null) {
+					distValues[dist] = [$(this)];
+				}
+				else {
+					distValues[dist].push($(this));
+				}
+				$(this).attr('x', x);
+				$(this).attr('y', y);
+				$(this).attr('dist', dist);
+			});
+			
+			animate();
+		});
+	</script>	
 </html>
