@@ -1,0 +1,45 @@
+<!doctype html>
+<html>
+  <head>
+  	<title>JS1k, 1k demo submission [ID]</title>
+		<meta charset="utf-8" />
+	</head>
+	<body>
+		<canvas id="c"></canvas>
+		<script>
+			var b = document.body;
+			var c = document.getElementsByTagName('canvas')[0];
+			var a = c.getContext('2d');
+			document.body.clientWidth; // fix bug in webkit: http://qfox.nl/weblog/218
+		</script>
+		<script>
+			// Math.round(a) -> a+.5|0
+			a='<p style="position:fixed">';
+			a=a+b.children[2].text.split('').join('</p>'+a)+'</p>';
+			c=document.createElement("div");
+			c.innerHTML=a;
+			var f=[],x='px',y=120;
+			document.onclick = function(){f.push(99)};
+			b.appendChild(c);
+			c=c.children;
+			a=0;
+			setInterval(function(s,d,h,p,z){
+				p=0;
+				for(z in f) {
+					h = Math.abs(50-f[z]--)/49;
+					p+=(h>1)?0:1-h*h*(3-2*h)*h;
+					if(!f[z]) f.shift(); // Optional
+				}
+				for(b=c.length;b--;) {
+					s=c[b].style;
+					d=(b/99+1)*40;
+					s.left=600*(1-Math.cos(a*.17)/2)+d*Math.cos(d*a/99+b/d*10)*Math.cos(d*a*.0017)*(1-Math.tan(b*p*.017))+x;
+					s.top=500*(1-Math.sin(a*.83)/2)+d*Math.sin(d*a/99+b/d*10)*Math.sin(d*a*.0017)*(1-Math.tan(b*p*.017))+x;
+					s.color='rgb('+[y+Math.round(Math.sin(b*a*.005)*y*(1-p)),y+Math.round(Math.cos(a*.017)*y*(1-p)),y+Math.round(Math.cos(d*a*.0083)*y*(1-p))]+')';
+					s.fontSize=8+b/99+Math.cos(d*a/99)*(b/99)*(1-Math.tan(b*p*.085))/5+x;
+				}
+				a+=.01;
+			},16);
+		</script>
+	</body>
+</html>
