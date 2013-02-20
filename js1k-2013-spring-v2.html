@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
-  <head>
-  	<title>JS1k, 1k demo submission [ID]</title>
+	<head>
+		<title>JS1k, 1k demo submission [ID]</title>
 		<meta charset="utf-8" />
 	</head>
 	<body>
@@ -14,32 +14,35 @@
 		</script>
 		<script>
 			// Math.round(a) -> a+.5|0
+			// Be warry, Google Closure can strip the useless parameters in the function signatures, while they can be useful during the minification by jscrush.
+			
+			f=[],x='px ',r='rgb(',v=document,y=101,l=0,t=0,p='</p>',g=b.scrollWidth/2,u=b.scrollHeight/2,k=Math.cos,i=Math.sin,j=Math.tan;
 			a='<p style="position:fixed">';
-			a=a+b.children[2].text.split('').join('</p>'+a)+'</p>';
-			c=document.createElement("div");
+			a=a+b.innerHTML.split('').join(p+a)+p;
+			c=v.createElement('div');
 			c.innerHTML=a;
-			var f=[],x='px',y=120;
-			document.onclick = function(){f.push(99)};
+			v.onclick = function(s,d,h,z,w){f.push(y)};
+			v.onmousemove = function(s,d,h,z,w){l=s.clientX/y;t=s.clientY/y;};
 			b.appendChild(c);
 			c=c.children;
 			a=0;
-			setInterval(function(s,d,h,p,z){
+			setInterval(function(s,d,h,z,w){
 				p=0;
-				for(z in f) {
-					h = Math.abs(50-f[z]--)/49;
-					p+=(h>1)?0:1-h*h*(3-2*h)*h;
-					if(!f[z]) f.shift(); // Optional
-				}
-				for(b=c.length;b--;) {
-					s=c[b].style;
-					d=(b/99+1)*40;
-					s.left=600*(1-Math.cos(a*.17)/2)+d*Math.cos(d*a/99+b/d*10)*Math.cos(d*a*.0017)*(1-Math.tan(b*p*.017))+x;
-					s.top=500*(1-Math.sin(a*.83)/2)+d*Math.sin(d*a/99+b/d*10)*Math.sin(d*a*.0017)*(1-Math.tan(b*p*.017))+x;
-					s.color='rgb('+[y+Math.round(Math.sin(b*a*.005)*y*(1-p)),y+Math.round(Math.cos(a*.017)*y*(1-p)),y+Math.round(Math.cos(d*a*.0083)*y*(1-p))]+')';
-					s.fontSize=8+b/99+Math.cos(d*a/99)*(b/99)*(1-Math.tan(b*p*.085))/5+x;
-				}
 				a+=.01;
-			},16);
+				for(z in f){
+					h=Math.abs(50-f[z]--)/49;
+					p+=(h>1)?0:1-h*h*(3-2*h);
+					f[z]||f.shift(); // clean, but optional
+				}
+				for(w=c.length;w--;
+					s=c[w].style,
+					d=(w/y+1)*50*(1-p),
+					s.left=g*(1-i(d*.0017+l)/2)+d*k(d*a/y+w/d*10)*k(d*a*.0031)*(1-j(w*p*.017))+x,
+					s.top=u*(1-k(d*a/y+t)/2)+d*i(d*a/y+w/d*10)*i(d*a*.0031)*(1-j(w*p*.017))+x,
+					s.textShadow='0 0 '+(s.fontSize=8+w/49+k(d*a/y)*(w/y)*(1-j(w*p*.083))/5+x)+(s.color=r+[y+i(w*a/y)*y+.5|0,y+k(a*.017)*y*(1-p)+.5|0,y+k(d*a/y)*y*(1-p)+.5|0]+')')
+				);
+				b.style.background=r+[y*i(p*a/t)+.5|0,y*i(p*a/l)+.5|0,9]+')';
+			},17);
 		</script>
 	</body>
 </html>
