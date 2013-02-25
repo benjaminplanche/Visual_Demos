@@ -1,31 +1,31 @@
 var LandscapeGenerator = {
 
-  author : "Aldream - Benjamin Planche",
+	author : "Aldream - Benjamin Planche",
 	version : "0.1.1",
 
 	// Parameters :
 	param_h : 0.4,
 	param_s0 : 10,
-	param_hwater : 590,
+	param_hwater : 600,
 	param_hdam : 630,
-	param_sun : Vector.create([10000, 10000, 10000]),
+	param_sun : [10000, 10000, 10000],
 	
 	// Colors :
-	grey : Vector.create([0.5, 0.5, 0.5]),
-	white : Vector.create([1, 1, 1]),
-	brown1 : Vector.create([0.74, 0.73, 0.42]),
-	brown2 : Vector.create([0.55, 0.55, 0]),
-	grey2 : Vector.create([0.42, 0.35, 0.35]),
-	greenForest : Vector.create([0.06, 0.5, 0.05]),
-	greenGrass : Vector.create([0, 0.8, 0.3]),
-	yellowSand : Vector.create([0.9, 0.9, 0.5]),
-	blueSky : Vector.create([0.54, 0.73, 0.91]),
-	blueSee : Vector.create([0.61, 0.81, 1]),
+	grey : [0.5, 0.5, 0.5],
+	white : [1, 1, 1],
+	brown1 : [0.74, 0.73, 0.42],
+	brown2 : [0.55, 0.55, 0],
+	grey2 : [0.42, 0.35, 0.35],
+	greenForest : [0.06, 0.5, 0.05],
+	greenGrass : [0, 0.8, 0.3],
+	yellowSand : [0.9, 0.9, 0.5],
+	blueSky : [0.54, 0.73, 0.91],
+	blueSee : [0.61, 0.81, 1],
 	
 	// Attributes :
 	distUser : 10000,
 	angleMov : 0.085,
-	p1 : [0, 0, 1000],
+	p1 : [-500, -500, 3000],
 	p3 : [17400, 17400, 17401],
 	angle : -0.34,
 	angleH : 0.51,
@@ -39,8 +39,8 @@ var LandscapeGenerator = {
 	// Methods :
 	
 	stochasticInterpolation : function stochasticInterpolation(imIni, colsIni, rowsIni,l, h, s0) {
-		var rows = rowsIni*2;
-		var cols = colsIni*2;
+		var rows = rowsIni*2-1;
+		var cols = colsIni*2-1;
 		var im = [];
 /*
 		// We fill with the already-known values :
@@ -71,44 +71,91 @@ var LandscapeGenerator = {
 			}
 		}
 */
-		for (i = 0; i < rows*cols; i++) { im[i] = (i/cols)*20; }
+		var coef = s0*Math.pow(2,(-l*h));
+		for (var i=0; i<rows; i++){
+			for (var j=0; j<cols; j++){
+				var m=i/2|0, n=j/2|0;
+				if (i%2) {
+					if (j%2) {
+						im[i*cols+j] = (im[i*cols+j-cols]+im[i*cols+j-1]+imIni[m*colsIni+n+colsIni+1])/3;
+					}
+					else {
+						im[i*cols+j] = (imIni[m*colsIni+n]+imIni[m*colsIni+n+colsIni])/2;
+					}
+				}
+				else {
+					if (j%2) {
+						im[i*cols+j] = (imIni[m*colsIni+n]+imIni[m*colsIni+n+1])/2;
+					}
+					else {
+						im[i*cols+j] = imIni[m*colsIni+n];
+					}
+				}
+				/*im[i*cols+j] = ((i%2)?
+					(j%2)? ((im[i*cols+j-cols]+im[i*cols+j-1]+imIni[m*colsIni+n+colsIni+1])/3):((imIni[m*colsIni+n]+imIni[m*colsIni+n+colsIni])/2):
+					(j%2)? ((imIni[m*colsIni+n]+imIni[m*colsIni+n+1])/2):imIni[m*colsIni+n])+Math.random()*coef;*/
+					if (!(im[i*cols+j] < 0 || im[i*cols+j] > 0)) {
+						var t = [im[i*cols+j-cols],im[i*cols+j-1],imIni[m*colsIni+n+colsIni+1]];
+						im[i*cols+j] = 0;
+					}
+			}
+		}
+/*		
+		for (i=0; i<rows; i++){
+			for (j=0; j<cols; j++){
+				im[i*cols+j] = (j+i-30)*(j-i-30)/3;
+			}
+		}	*/
 		return im;
 	},
 
 	recursiveInterpolation : function recursiveInterpolation(imIni, colsIni, rowsIni, lMax, h, s0) {
-		var imCourant = imIni;
-		for (l=1; l <=lMax; l++)
-			imCourant = LandscapeGenerator.stochasticInterpolation(imCourant, colsIni*l, rowsIni*l, l, h, s0);
+		for (l=1; l <=lMax; l++){
+			var rows = rowsIni*2-1;
+			var cols = colsIni*2-1;
+			var im = [];
+			var coef = s0*Math.pow(2,(-l*h));
+			for (var i=0; i<rows; i++){
+				for (var j=0; j<cols; j++){
+					var m=i/2|0, n=j/2|0;
+					im[i*cols+j] = ((i%2)?
+						(j%2)? ((im[i*cols+j-cols]+im[i*cols+j-1]+imIni[m*colsIni+n+colsIni+1])/3):((imIni[m*colsIni+n]+imIni[m*colsIni+n+colsIni])/2):
+						(j%2)? ((imIni[m*colsIni+n]+imIni[m*colsIni+n+1])/2):imIni[m*colsIni+n])+(Math.random()-.5)*coef;
+				}
+			}
+			rowsIni=rows; colsIni=cols; imIni=im;
+			/*imCourant = LandscapeGenerator.stochasticInterpolation(imCourant, colsIni*l-1, rowsIni*l-1, l, h, s0);*/
+		}
 			
-		return imCourant;
+		return im;
 	},
 
 	triangleCutting : function triangleCutting(imIni, colsIni, rowsIni, step) {
 		var imTriangles = [];
 		var n = 0;
-		for (i = 0; i < rowsIni; i++) {
-			for (j = 0; j < colsIni; j++) {
+		for (i = 0; i < rowsIni-1; i++) {
+			for (j = 0; j < colsIni-1; j++) {
 				imTriangles[n++] = [
-					(i-1)*step,
-					(j-1)*step,
-					imIni[colsIni*i+j],
-					i*step,
-					(j-1)*step,
-					imIni[colsIni*i+1+j],
 					i*step,
 					j*step,
-					imIni[colsIni*i+1+j+1]];
+					imIni[colsIni*i+j],
+					(i+1)*step,
+					j*step,
+					imIni[colsIni*i+j+colsIni],
+					(i+1)*step,
+					(j+1)*step,
+					imIni[colsIni*i+j+colsIni+1]];
 				
 				imTriangles[n++] = [
-					(i-1)*step,
-					(j-1)*step,
-					imIni[colsIni*i+j],
-					(i-1)*step,
-					j*step,
-					imIni[colsIni*i+j+1],
 					i*step,
 					j*step,
-					imIni[colsIni*i+1+j+1]];
+					imIni[colsIni*i+j],
+					i*step,
+					(j+1)*step,
+					imIni[colsIni*i+j+1],
+					(i+1)*step,
+					(j+1)*step,
+					imIni[colsIni*i+j+colsIni+1]];
 			}
 		}
 
@@ -123,6 +170,7 @@ var LandscapeGenerator = {
 		var roll = /*Math.asin(rz.e(3)/Math.sqrt(rz.e(1)*rz.e(1)+rz.e(2)*rz.e(2)))*/ LandscapeGenerator.angle;
 		var inv;
 		for (i = 0; i < imIni.length; i++) {
+			im[i] = [];
 			for (j = 0; j < 9; j+=3) {
 			
 				var csz = Math.sin(roll)*(imIni[i][j+1]-LandscapeGenerator.p1[1]) + Math.cos(roll)*(imIni[i][j]-LandscapeGenerator.p1[0]);
@@ -134,10 +182,10 @@ var LandscapeGenerator = {
 					Math.sin(yaw)*csOy + Math.cos(yaw)*csOz,
 					Math.cos(yaw)*csOy - Math.sin(yaw)*csOz];
 				inv = 1/coord[2];
-				im[i] = [coord[0]*inv*canvas.width/2 + canvas.width/2, coord[1]*inv*canvas.height/2 + canvas.height/2, coord[2]];
+				im[i].push(coord[0]*inv*canvas.width/2 + canvas.width/2, coord[1]*inv*canvas.height/2 + canvas.height/2, coord[2]);
 				
 			/*/	
-				coordInit.setElements([imIni.e(i,j), imIni.e(i,j+1), imIni.e(i,j+2), 1]);
+				coordInit.setElements([imIni[i][j), imIni[i][j+1), imIni[i][j+2), 1]);
 				coord = matTransfo.x(coordInit);
 				
 				inv = 1/coord.e(4);
@@ -164,9 +212,9 @@ var LandscapeGenerator = {
 	},
 
 	fill : function fill(triangle, color, canvas) {
-		canvas.fillStyle = canvas.strokeStyle = 'rgb(' + Math.floor(color[0]*255) + ',' + Math.floor(color[1]*255) + ',' + Math.floor(color[2]*255) + ')';
+		canvas.fillStyle = canvas.strokeStyle = 'rgb(' + Math.floor(triangle[9][0]*255) + ',' + Math.floor(triangle[9][1]*255) + ',' + Math.floor(triangle[9][2]*255) + ')';
 		canvas.beginPath();
-		canvas.moveTo(triangle[0], triangle[1]);
+		canvas.moveTo(rG[0], triangle[1]);
 		canvas.lineTo(triangle[3], triangle[4]);
 		canvas.lineTo(triangle[6], triangle[7]);
 		canvas.lineTo(triangle[0], triangle[1]);
@@ -175,16 +223,29 @@ var LandscapeGenerator = {
 	},
 
 	buildLandscape : function buildLandscape(imIni, colsIni, rowsIni, it, h, s0, rectSize, damHeight, damSlope, waterHeight, boolPedestal) {
-		imIni = LandscapeGenerator.recursiveInterpolation(imIni, colsIni, rowsIni, it, h, s0);
+		for (l=1; l <=it; l++){
+			var rows = rowsIni*2-1;
+			var cols = colsIni*2-1;
+			var im = [];
+			var coef = s0*Math.pow(2,(-l*h));
+			for (var i=0; i<rows; i++){
+				for (var j=0; j<cols; j++){
+					var m=i/2|0, n=j/2|0;
+					im[i*cols+j] = ((i%2)?
+						(j%2)? ((im[i*cols+j-cols]+im[i*cols+j-1]+imIni[m*colsIni+n+colsIni+1])/3):((imIni[m*colsIni+n]+imIni[m*colsIni+n+colsIni])/2):
+						(j%2)? ((imIni[m*colsIni+n]+imIni[m*colsIni+n+1])/2):imIni[m*colsIni+n])+Math.random()*coef;
+				}
+			}
+			rowsIni=rows; colsIni=cols; imIni=im;
+			/*imCourant = LandscapeGenerator.stochasticInterpolation(imCourant, colsIni*l-1, rowsIni*l-1, l, h, s0);*/
+		}
 		var step = rectSize/Math.pow(2, it);
-		colsIni *= Math.pow(2, it);
-		rowsIni *= Math.pow(2, it);
 		/*
 		// Adding the dam :
 		var lastColWithDam = 0;
 		for (j = 1; j < 3; j++) {
 			for (i=1 ; i <= imSize.rows ; i++) {
-				if (imIni.e(i,j) < damHeight)
+				if (imIni[i][j) < damHeight)
 					imIni.set(i,j,damHeight);
 				
 			}
@@ -196,15 +257,15 @@ var LandscapeGenerator = {
 				break
 			}
 			for (i=1 ; i <= imSize.rows ; i++) {
-				if (imIni.e(i,j) < hDam)
+				if (imIni[i][j) < hDam)
 					imIni.set(i,j,hDam);
 			}
 		}
 		*/
 		
 		// Adding the water :
-		for (i=1 ; i <= rowsIni ; i++) {
-			for (j=1 ; j <= colsIni ; j++) {
+		for (i=0 ; i < rowsIni ; i++) {
+			for (j=0 ; j < colsIni ; j++) {
 				if (imIni[i*colsIni+j] < waterHeight) {
 					imIni[i*colsIni+j] = waterHeight+Math.random();
 				}
@@ -215,7 +276,7 @@ var LandscapeGenerator = {
 		// if (boolPedestal == 1) {
 			// var imG = Matrix.Zero(imIni.rows()+2, imIni.cols()+2);
 			// imG.map( function(x, i, j) {
-				// imG.set(i+1, j+1, imIni.e(i,j));
+				// imG.set(i+1, j+1, imIni[i][j));
 			// });
 			// var nb = imG.cols()-1;
 			// for (i = 0; i <= imG.rows(); i++) {
@@ -245,7 +306,7 @@ var LandscapeGenerator = {
 		var heightSnow = heightMax-50;
 		var heightSnowLimit = heightMax-70;
 		var heightRock = heightMax-200;
-		var heightForest = waterHeight+40;
+		var heightForest = waterHeight+100;
 		var heightMeadow = waterHeight+5;
 		var heightBeach = waterHeight+2;
 	
@@ -261,85 +322,60 @@ var LandscapeGenerator = {
 			// ___________________________
 			//    Color generation
 			// ___________________________
-			arrayColor.push([.5,1,0]);
-			
+			//var c = (imTriangles[i][2]-569)/200;
+			//arrayColor.push([c,c,c]);
+			var barycenter = [1/3*(imTriangles[i][0] + imTriangles[i][3] + imTriangles[i][6]),
+							1/3*(imTriangles[i][1] + imTriangles[i][4] + imTriangles[i][7]),
+							1/3*(imTriangles[i][2] + imTriangles[i][5] + imTriangles[i][8])];
 			/*j = i-1;
 			// Barycenter of the triangle with the global axis :
 			var barycenter = [1/3*(imTriangles[i*10+1] + imTriangles[i*10+4] + imTriangles[i*10+7]),
 							1/3*(imTriangles[i*10+2] + imTriangles[i*10+5] + imTriangles[i*10+8]),
 							1/3*(imTriangles[i*10+3] + imTriangles[i*10+6] + imTriangles[i*10+9])];
 			// Calculation of the color index depending on the LandscapeGenerator.angle between the triangle pointer and the sun ray :
-			vectSurf1.setElements([(imTriangles.e(i,1)-imTriangles.e(i,4)), (imTriangles.e(i,2)-imTriangles.e(i,5)), (imTriangles.e(i,3)-imTriangles.e(i,6))]);
-			vectSurf2.setElements([(imTriangles.e(i,7)-imTriangles.e(i,4)), (imTriangles.e(i,8)-imTriangles.e(i,5)), (imTriangles.e(i,9)-imTriangles.e(i,6))]);
+			vectSurf1 = [(imTriangles[i][1]-imTriangles[i][4]), (imTriangles[i][2]-imTriangles[i][5]), (imTriangles[i][3]-imTriangles[i][6])]);
+			vectSurf2 = ([(imTriangles[i][7]-imTriangles[i][4]), (imTriangles[i][8]-imTriangles[i][5]), (imTriangles[i][9]-imTriangles[i][6])]);
 			vectorSurf = vectSurf1.cross(vectSurf2).toUnitVector();
 			vectorSunRay = vectorSunRay.setElements([(-pSun.e(1)+barycenter.e(1)), (-pSun.e(2)+barycenter.e(2)), (-pSun.e(3)+barycenter.e(3)) ]).toUnitVector();
-			colorIndic = Math.abs(vectorSurf.dot(vectorSunRay));
+			*/
+			colorIndic = /*Math.abs(vectorSurf.dot(vectorSunRay))*/1;
 		
-			if ( (barycenter.e(2) <= lastColWithDam) && ((barycenter.e(3) == damHeight) && ((Math.abs(vectorSurf.e(3)) > step) || (vectorSurf.e(1) == 0)))) {
-				arrayColor[j] = LandscapeGenerator.grey.x(colorIndic*Math.abs(1+Math.random()/10)); // Dam => Gray	
+			if (barycenter[2] > heightSnow) {
+				imTriangles[i][9] = LandscapeGenerator.white;//.x(colorIndic*1.5); // Snow => White	
 			}
-			else if (barycenter.e(3) > heightSnow) {
-				arrayColor[j] = LandscapeGenerator.white.x(colorIndic*1.5); // Snow => White	
-			}
-			else if (barycenter.e(3) > heightSnowLimit) {
+			else if (barycenter[2] > heightSnowLimit) {
 				if (Math.random() > GolDenRationInverted) {
-					arrayColor[j] = LandscapeGenerator.white.x(colorIndic*1.3); // Snow => White	
+					imTriangles[i][9] = LandscapeGenerator.white;//;//.x(colorIndic*1.3); // Snow => White	
 				}
 				else {
-					arrayColor[j] = LandscapeGenerator.grey.x(colorIndic*Math.abs(1+Math.random()/20)); // Rock => Gray
+					imTriangles[i][9] = LandscapeGenerator.grey;//.x(colorIndic*Math.abs(1+Math.random()/20)); // Rock => Gray
 				}
 			}
-			else if (barycenter.e(3) > heightRock) {
-				if ((Math.abs(vectSurf1.e(3)) > pasDiv1_5) || (Math.abs(vectSurf2.e(3)) > pasDiv1_5)) {
-					arrayColor[j] = LandscapeGenerator.grey.x(colorIndic*Math.abs(1+Math.random()/20)); // Steep Rock => Gray
-				}	 
-				else if ((Math.abs(vectSurf1.e(3)) > pasDiv3) || (Math.abs(vectSurf2.e(3)) > pasDiv3)) {
-					arrayColor[j] = LandscapeGenerator.brown1.x(colorIndic*Math.abs(1+Math.random()/20)); // Steep Rock => Brown
-				}
-				else {
-					arrayColor[j] = LandscapeGenerator.brown2.x(colorIndic*Math.abs(1+Math.random()/10)); // Height => Gray-Brown
-				}
+			else if (barycenter[2] > heightRock) {
+				imTriangles[i][9] = LandscapeGenerator.brown1;
 			}
-			else if (barycenter.e(3) > heightMeadow) {
-				if ((Math.abs(vectSurf1.e(3)) > pasDiv1_5) || (Math.abs(vectSurf2.e(3)) > pasDiv1_5)) {
-					if (Math.random() > GolDenRationInverted) {
-						arrayColor[j] = LandscapeGenerator.grey2.x(colorIndic*Math.abs(1+Math.random()/20)); // Really Steep Rock => Gray-Brown
-					}
-					else {
-						arrayColor[j] = LandscapeGenerator.greenForest.x(colorIndic*Math.abs(1+Math.random()/10)); // Wood => Dark green
-					}
-				}
-				else if ((Math.abs(vectSurf1.e(3)) > pasDiv9) || (Math.abs(vectSurf2.e(3)) > pasDiv9)) {
-					arrayColor[j] = LandscapeGenerator.greenForest.x(colorIndic*Math.abs(1+Math.random()/10)); // Forest => Dark green
-				}
-				else {
-					if (Math.random() < GolDenRationInverted) {
-						arrayColor[j] = LandscapeGenerator.greenGrass.x(colorIndic*Math.abs(1+Math.random()/10)); // Meadow => light green
-					}
-					else {
-						arrayColor[j] = LandscapeGenerator.greenForest.x(colorIndic*Math.abs(1+Math.random()/10));// Wood => Dark green
-					}
-				}
+			else if (barycenter[2] > heightMeadow) {
+				imTriangles[i][9] = LandscapeGenerator.greenForest;
 			}
-			else if (barycenter.e(3) > heightBeach) {
-				arrayColor[j] = LandscapeGenerator.yellowSand.x(colorIndic*Math.abs(1-Math.random()/20)); // Beach => yellow
+			else if (barycenter[2] > heightBeach) {
+				imTriangles[i][9] = LandscapeGenerator.yellowSand;//.x(colorIndic*Math.abs(1-Math.random()/20)); // Beach => yellow
 			}
 			else { // Water :
 				if (Math.random() > GolDenRationInverted) {
-					arrayColor[j] = LandscapeGenerator.blueSky.x(colorIndic*Math.abs(1-Math.random()/10));
+					imTriangles[i][9] = LandscapeGenerator.blueSky;//.x(colorIndic*Math.abs(1-Math.random()/10));
 				}
 				else {
-					arrayColor[j] = LandscapeGenerator.blueSee.x(colorIndic*Math.abs(1-Math.random()/10));
+					imTriangles[i][9] = LandscapeGenerator.blueSee;//.x(colorIndic*Math.abs(1-Math.random()/10));
 				}
 			}
 			
-			arrayColor[j].each(function(x,i){ correctColor(x,i);}); */
+			//arrayColor[j].each(function(x,i){ correctColor(x,i);});
 		}
 		
-		return arrayColor;
+		return imTriangles;
 	},
 
-	painterAlgo : function painterAlgo(imTriangles, arrayColor, canvas, context, p, q, r, pSun) {
+	painterAlgo : function painterAlgo(imTriangles, canvas, context, p, q, r, pSun) {
 		
 		var im = LandscapeGenerator.perspectiveTransform(imTriangles);
 		
@@ -347,9 +383,9 @@ var LandscapeGenerator = {
 /*
 		for (i=0 ; i < imTriangles.length ; i++) {
 			// Triangle barycenter with the new axis :
-			barycenter.set(1, 0.333*(im.e(i,1) + im.e(i,4) + im.e(i,7)));
-			barycenter.set(2, 0.333*(im.e(i,2) + im.e(i,5) + im.e(i,8)));
-			barycenter.set(3, 0.333*(im.e(i,3) + im.e(i,6) + im.e(i,9)));
+			barycenter.set(1, 0.333*(im[i][1) + im[i][4) + im[i][7)));
+			barycenter.set(2, 0.333*(im[i][2) + im[i][5) + im[i][8)));
+			barycenter.set(3, 0.333*(im[i][3) + im[i][6) + im[i][9)));
 			im[i*10+9] = im[ barycenter.modulus());
 	 
 		}
@@ -361,7 +397,7 @@ var LandscapeGenerator = {
 				if (x > 1) { x = 1; }
 			}); */
 			
-			LandscapeGenerator.fill(im[i], arrayColor[i], context);
+			LandscapeGenerator.fill(im[i], context);
 			
 		}
 		
@@ -403,17 +439,17 @@ var LandscapeGenerator = {
 			610 , 600 , 610 , 605 , 615 , 618 , 625 , 638 , 648 , 665 , 680 , 700 , 705];
 		
 
-		var imMax = 705;
+		var imMax = 1000;
 		
 		// Generating the landscape with various levels of details :
 		landscapes = new Array();
 		colorsMap = new Array();
-		landscapes[0] = LandscapeGenerator.buildLandscape(im, 13, 10, 1, LandscapeGenerator.param_h, LandscapeGenerator.param_s0, 100, LandscapeGenerator.param_hdam, 3, LandscapeGenerator.param_hwater, 1);
-		landscapes[1] = LandscapeGenerator.buildLandscape(im, 26, 20, 2, LandscapeGenerator.param_h, LandscapeGenerator.param_s0, 100, LandscapeGenerator.param_hdam, 3, LandscapeGenerator.param_hwater, 1);
-		landscapes[2] = LandscapeGenerator.buildLandscape(im, 52, 40, 3, LandscapeGenerator.param_h, LandscapeGenerator.param_s0, 100, LandscapeGenerator.param_hdam, 3, LandscapeGenerator.param_hwater, 1);
-		colorsMap[0] = LandscapeGenerator.colorLandscape(landscapes[0], LandscapeGenerator.param_sun, imMax, LandscapeGenerator.param_hdam, landscapes[0].d, LandscapeGenerator.param_hwater, 25);
-		colorsMap[1] = LandscapeGenerator.colorLandscape(landscapes[1], LandscapeGenerator.param_sun, imMax, LandscapeGenerator.param_hdam, landscapes[1].d, LandscapeGenerator.param_hwater, 25);
-		colorsMap[2] = LandscapeGenerator.colorLandscape(landscapes[2], LandscapeGenerator.param_sun, imMax, LandscapeGenerator.param_hdam, landscapes[2].d, LandscapeGenerator.param_hwater, 25);
+		landscapes[0] = LandscapeGenerator.buildLandscape(im, 13,10, 1, LandscapeGenerator.param_h, LandscapeGenerator.param_s0, 100, LandscapeGenerator.param_hdam, 3, LandscapeGenerator.param_hwater, 1);
+		landscapes[1] = LandscapeGenerator.buildLandscape(im, 13,10, 2, LandscapeGenerator.param_h, LandscapeGenerator.param_s0, 100, LandscapeGenerator.param_hdam, 3, LandscapeGenerator.param_hwater, 1);
+		landscapes[2] = LandscapeGenerator.buildLandscape(im, 13,10, 3, LandscapeGenerator.param_h, LandscapeGenerator.param_s0, 100, LandscapeGenerator.param_hdam, 3, LandscapeGenerator.param_hwater, 1);
+		landscapes[0] = LandscapeGenerator.colorLandscape(landscapes[0], LandscapeGenerator.param_sun, imMax, LandscapeGenerator.param_hdam, landscapes[0].d, LandscapeGenerator.param_hwater, 25);
+		landscapes[1] = LandscapeGenerator.colorLandscape(landscapes[1], LandscapeGenerator.param_sun, imMax, LandscapeGenerator.param_hdam, landscapes[1].d, LandscapeGenerator.param_hwater, 25);
+		landscapes[2] = LandscapeGenerator.colorLandscape(landscapes[2], LandscapeGenerator.param_sun, imMax, LandscapeGenerator.param_hdam, landscapes[2].d, LandscapeGenerator.param_hwater, 25);
 
 		GeneratePointOfView = function GeneratePointOfView(e) {
 			var code = (e.keyCode ? e.keyCode : e.which);
@@ -465,9 +501,9 @@ var LandscapeGenerator = {
 			}
 			else if (code == 71) { // Generate (g)
 				var rG = LandscapeGenerator.buildLandscape(im, 3, LandscapeGenerator.param_h, LandscapeGenerator.param_s0, 100, LandscapeGenerator.param_hdam, 3, LandscapeGenerator.param_hwater, 1);
-				var arrayColorG = LandscapeGenerator.colorLandscape(rG, LandscapeGenerator.param_sun, imMax, LandscapeGenerator.param_hdam, rG.d, LandscapeGenerator.param_hwater, 12.5);
+				rG = LandscapeGenerator.colorLandscape(rG, LandscapeGenerator.param_sun, imMax, LandscapeGenerator.param_hdam, rG.d, LandscapeGenerator.param_hwater, 12.5);
 				LandscapeGenerator.clearCanvas(context, canvas);
-				LandscapeGenerator.painterAlgo(landscapes[2], colorsMap[2], canvas, context, LandscapeGenerator.param_p, LandscapeGenerator.param_q, LandscapeGenerator.param_r, LandscapeGenerator.param_sun);
+				LandscapeGenerator.painterAlgo(landscapes[2], canvas, context, LandscapeGenerator.param_p, LandscapeGenerator.param_q, LandscapeGenerator.param_r, LandscapeGenerator.param_sun);
 			}
 			else if (code == 82) {
 				im = Matrix.Random(2, 3);
@@ -475,7 +511,7 @@ var LandscapeGenerator = {
 					im.set(i,j, Math.round(x*500+500));
 				});
 				LandscapeGenerator.clearCanvas(context, canvas);
-				LandscapeGenerator.painterAlgo(r, arrayColor, canvas, context, LandscapeGenerator.param_p, LandscapeGenerator.param_q, LandscapeGenerator.param_r, LandscapeGenerator.param_sun);
+				LandscapeGenerator.painterAlgo(r, canvas, context, LandscapeGenerator.param_p, LandscapeGenerator.param_q, LandscapeGenerator.param_r, LandscapeGenerator.param_sun);
 			}
 
 			if (bool == 1) {/*
@@ -490,11 +526,11 @@ var LandscapeGenerator = {
 				LandscapeGenerator.p3.set(3, LandscapeGenerator.p1.e(3)-1);
 				*/
 				LandscapeGenerator.clearCanvas(context, canvas);
-				LandscapeGenerator.painterAlgo(landscapes[0], colorsMap[0], canvas, context, LandscapeGenerator.param_p, LandscapeGenerator.param_q, LandscapeGenerator.param_r, LandscapeGenerator.param_sun);
+				LandscapeGenerator.painterAlgo(landscapes[0], canvas, context, LandscapeGenerator.param_p, LandscapeGenerator.param_q, LandscapeGenerator.param_r, LandscapeGenerator.param_sun);
 			}
 			else if (bool == 2) {
 				LandscapeGenerator.clearCanvas(context, canvas);
-				LandscapeGenerator.painterAlgo(landscapes[0], colorsMap[0], canvas, context, LandscapeGenerator.param_p, LandscapeGenerator.param_q, LandscapeGenerator.param_r, LandscapeGenerator.param_sun);
+				LandscapeGenerator.painterAlgo(landscapes[0], canvas, context, LandscapeGenerator.param_p, LandscapeGenerator.param_q, LandscapeGenerator.param_r, LandscapeGenerator.param_sun);
 			}
 		};
 		
@@ -502,7 +538,7 @@ var LandscapeGenerator = {
 			var code = (e.keyCode ? e.keyCode : e.which);
 			if (code != 71) {
 				LandscapeGenerator.clearCanvas(context, canvas);
-				LandscapeGenerator.painterAlgo(landscapes[1], colorsMap[1], canvas, context, LandscapeGenerator.param_p, LandscapeGenerator.param_q, LandscapeGenerator.param_r, LandscapeGenerator.param_sun);
+				LandscapeGenerator.painterAlgo(landscapes[1], canvas, context, LandscapeGenerator.param_p, LandscapeGenerator.param_q, LandscapeGenerator.param_r, LandscapeGenerator.param_sun);
 			}
 		}
 /*
