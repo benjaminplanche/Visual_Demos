@@ -13,7 +13,7 @@
 			document.body.clientWidth; // fix bug in webkit: http://qfox.nl/weblog/218
 		</script>
 		<script>
-d=[], h=e=6, b = function(h,s,l) { return 'hsl('+[94*h,15*s+'%',60*l]+'%)'; }
+d=[], h=e=6, b = function(h,s,l) { return 'hsl('+[90*h,15*s+'%',60*l]+'%)'; }
 		
 // Generating the landscape with various levels of details :
 for(f=10;f-=2;){
@@ -21,17 +21,15 @@ for(f=10;f-=2;){
 	for (l=1; l <=f; l++){
 		p = o*2-1,q = [],h /= 2
 		for (i=p; i--;){
-			for (j=p; j--;){
+			for (j=p; j--;
 				v=g[u=o*(i/2|0)+j/2|0], w=i*p+j, q[w] = ((i%2)?
 					(j%2)? ((q[w+p]+q[w+1]+v)/3):((v+g[u+o])/2):
-					(j%2)? ((v+g[u+1])/2):v)+h*Math.random();
-				if (l==f && q[w] < e)
-					q[w] = e
-			}
+					(j%2)? ((v+g[u+1])/2):v)+h*Math.random(),
+				q[w]=(l==f && q[w] < e)?e:q[w]);
 		}
 		o=p, g=q
 	}
-	r = 20/Math.pow(2, 8),n = 0,d[f] = [],p=o-1
+	r = 20/Math.pow(2, f),n = 0,d[f] = [],p=o-1
 	for (i = p; i--;) {
 		for (j = p; j--;) {
 			v=g[u=o*i+j]
@@ -55,7 +53,7 @@ for(f=10;f-=2;){
 		}
 	}
 }	
-a.fillStyle=b(),a.fillRect(0, 0, r=c.width=c.height=800),
+a.fillStyle=b(),a.fillRect(0, 0, r=c.width=c.height=800,r),
 
 q = [], h = .4, g=d[8],p=131072, r/=2, o = .8
 for (w = p; w--;) {
@@ -68,12 +66,12 @@ for (w = p; w--;) {
 q.sort(function(h,s,l){return h[3]-s[3]})
 		
 for (w=p;w--;
-	a.fillStyle= /*a.strokeStyle = */q[w][9],
+	a.fillStyle= a.strokeStyle = q[w][9],
 	a.beginPath(),
 	a.moveTo(q[w][1], q[w][2]),
 	a.lineTo(q[w][4], q[w][5]),
 	a.lineTo(q[w][7], q[w][8]),
-	a.fill()/*,a.stroke()*/);
+	a.fill(),a.stroke());
 
 		</script>
 	</body>
