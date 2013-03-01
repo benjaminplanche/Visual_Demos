@@ -13,10 +13,10 @@
 			document.body.clientWidth; // fix bug in webkit: http://qfox.nl/weblog/218
 		</script>
 		<script>
-d=[],g=[], r=R=18,C = function(H,S,L) { return 'hsl('+[99*H,15*S+'%',+45*L]+'%)'; }
+d=[],g=[], r=R=21
 		
 // Generating the landscape with various levels of details :
-g[Z=l=0]=[o=2,T=1,9,h=7]/*.sort(function(){return .5-Math.random()})*/, D=[]// Initial description of our map : a hole, a bump, and some stuff between ...
+g[Z=l=0]=[o=2,T=3,9,h=8]/*.sort(function(){return .5-Math.random()})*/, D=[]// Initial description of our map : a hole, a bump, and some stuff between ...
 
 for(;l<8;){
 	i=p = o*2-1,d[++l] = [], g[l]=[], h /= 2
@@ -24,8 +24,8 @@ for(;l<8;){
 		for (j=p; j--;
 			v=g[l-1][u=o*(i/2|0)+j/2|0], w=i*p+j, g[l][w]=d[l][w] = (i%2?
 				j%2? (d[l][w+p]+d[l][w+1]+v)/3:(v+g[l-1][u+o])/2:
-				j%2? (v+g[l-1][u+1])/2:v)+h*Math.random(),
-			d[l][w]=d[l][w] < 7?7:d[l][w]);
+				j%2? (v+g[l-1][u+1])/2:v)+h*(.6-Math.random()),
+			d[l][w]=d[l][w] < 6?6:d[l][w]);
 
 	o=i=p--,r/=2,D[l] = []
 	for (; i--;)
@@ -42,43 +42,42 @@ for(;l<8;){
 					m+r,
 					q+r,
 					y=d[l][u+o+1],
-					x=2+(v-y)/r,
-					y=(v+y+Y)/3, // Z-barycenter
-					(y-=x)>9? C(0,0,x):
-						 Y>7? C(7/y,x*7/y,Y>7.05?x/3:x):
-										C(2-i/p/2,y,1)]);
+					x=2+(Y-y)/r,
+					'hsl('+[70*(7<(y-=x)?1:(6==Y)+6/y),21*(6<Y?x*6/y:y)+'%',40*(7<y?x:6.03<Y?x/3:6<Y?x:1-Math.random()/5)]+'%)']);
 		}
 }
-
+Y=Z=.6;
 e=function(H,S,L){
-	a.fillRect(0, 0, h=c.width=innerWidth,r=c.height=innerHeight), 
+	a.fillRect(0, 0, h=c.width=innerWidth-21,r=c.height=innerHeight-21), 
 	m=Math.cos(Z),w=Math.sin(Z),o=Math.cos(Y),x=Math.sin(Y),d = [], h/=2
 	
-	for (l in D[8-T*3]) {
+	for (l in D[8-T]) {
 		d[l] = []
 		for (j = 9;j;
-			v=D[8-T*3][l][--j]-R*o-3, u=D[8-T*3][l][--j]+R*m, t=D[8-T*3][l][--j]+R*w,
-			d[l].push(z = o*v- (k=m*u+w*t)*x,(m*t-w*u)/z*h + h, (v*x +o*k)/z*r + r));
-		d[l][9] = D[8-T*3][l][11]
+			v=D[8-T][l][--j]-R*o-2, u=D[8-T][l][--j]+R*m, t=D[8-T][l][--j]+R*w,
+			d[l].push(z = o*v- (k=m*u+w*t)*x,(v*x +o*k)/z*r + r,(m*t-w*u)/z*h + h));
+		d[l][9] = D[8-T][l][10]
 	}
 	d.sort(function(H,S,L){return H[3]-S[3]})
 			
 	for (l in d)
-		a.fillStyle = d[l][9],
+		/*a.fillStyle = */a.strokeStyle=d[l][9],
 		a.beginPath(),
-		a.moveTo(d[l][1], d[l][2]),
-		a.lineTo(d[l][4], d[l][5]),
-		a.lineTo(d[l][7], d[l][8]),
-		a.fill()
+		a.moveTo(d[l][8], d[l][7]),
+		a.lineTo(d[l][5], d[l][4]),
+		a.lineTo(d[l][2], d[l][1]),
+		a.lineTo(d[l][8], d[l][7]),
+		/*a.fill(), */a.stroke()
 	o=T?setTimeout(e,16):0
 };
-b.onclick=function(H,S,L){T^=1,o=0,e()}
+b.onclick=function(H,S,L){T^=3,o=0,e()}
 b.onmousemove=function(H,S,L){Z=H.clientX/h,Y=H.clientY/r}
 /*b.onmousewheel=function(H,S,L){
 	R+=H.wheelDelta/99}*/ // Not supported by FF, alas...
 b.onkeydown=function(H,S,L){
 	R+=(H.which==40)-(H.which==38)} // ... so we use the arrows instead. Less elegant, and 6B heavier.
 e()
+
 		</script>
 	</body>
 </html>
