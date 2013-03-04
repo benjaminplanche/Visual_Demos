@@ -13,10 +13,10 @@
 			document.body.clientWidth; // fix bug in webkit: http://qfox.nl/weblog/218
 		</script>
 		<script>
-d=[],g=[], r=R=21
+d=[],g=[], r=R=21, Y=.6,
 		
 // Generating the landscape with various levels of details :
-g[Z=l=0]=[o=2,T=3,9,h=8]/*.sort(function(){return .5-Math.random()})*/, D=[]// Initial description of our map : a hole, a bump, and some stuff between ...
+g[T=Z=l=0]=[o=2,3,9,h=8]/*.sort(function(){return .5-Math.random()})*/, D=[]// Initial description of our map : a hole, a bump, and some stuff between ...
 
 for(;l<8;){
 	i=p = o*2-1,d[++l] = [], g[l]=[], h /= 2
@@ -24,7 +24,7 @@ for(;l<8;){
 		for (j=p; j--;
 			v=g[l-1][u=o*(i/2|0)+j/2|0], w=i*p+j, g[l][w]=d[l][w] = (i%2?
 				j%2? (d[l][w+p]+d[l][w+1]+v)/3:(v+g[l-1][u+o])/2:
-				j%2? (v+g[l-1][u+1])/2:v)+h*(.6-Math.random()),
+				j%2? (v+g[l-1][u+1])/2:v)+h*(Y-Math.random()),
 			d[l][w]=d[l][w] < 6?6:d[l][w]);
 
 	o=i=p--,r/=2,D[l] = []
@@ -38,15 +38,14 @@ for(;l<8;){
 					v,
 					(i+1-Z%2)*r-9,
 					(j+Z%2)*r-9,
-					Y=d[l][u+(Z%2?1:o)],
+					z=d[l][u+(Z%2?1:o)],
 					m+r,
 					q+r,
 					y=d[l][u+o+1],
-					x=2+(Y-y)/r,
-					'hsl('+[70*(7<(y-=x)?1:(6==Y)+6/y),21*(6<Y?x*6/y:y)+'%',40*(7<y?x:6.03<Y?x/3:6<Y?x:1-Math.random()/5)]+'%)']);
+					x=2+(z-y)/r,
+					'hsl('+[99*(7<(y-=x)?1:(6==z)+4/y),28*(6<z?x*4/y:y)+'%',36*(7<y?x:6.03<z?x/3:6<z?x:1-Math.random()/5)]+'%)']);
 		}
 }
-Y=Z=.6;
 e=function(H,S,L){
 	a.fillRect(0, 0, h=c.width=innerWidth-21,r=c.height=innerHeight-21), 
 	m=Math.cos(Z),w=Math.sin(Z),o=Math.cos(Y),x=Math.sin(Y),d = [], h/=2
@@ -70,13 +69,19 @@ e=function(H,S,L){
 		/*a.fill(), */a.stroke()
 	o=T?setTimeout(e,16):0
 };
-b.onclick=function(H,S,L){T^=3,o=0,e()}
+b.onclick=function(H,S,L){clearTimeout(o),e(T^=3)}
 b.onmousemove=function(H,S,L){Z=H.clientX/h,Y=H.clientY/r}
 /*b.onmousewheel=function(H,S,L){
 	R+=H.wheelDelta/99}*/ // Not supported by FF, alas...
+/*b.onmousewheel=b.onwheel=function(H,S,L){
+    R+=H.deltaY||H.wheelDeltaY/40}*/ // Cross-browser solution, but to heavy ...
 b.onkeydown=function(H,S,L){
 	R+=(H.which==40)-(H.which==38)} // ... so we use the arrows instead. Less elegant, and 6B heavier.
-e()
+e(T^=3)
+
+/* Post-Closure :
+d=[];g=[];r=R=21;Y=.6;g[T=Z=l=0]=[o=2,3,9,h=8];for(D=[];8>l;){i=p=2*o-1;d[++l]=[];h/=2;for(g[l]=[];i--;)for(j=p;j--;v=g[l-1][u=o*(i/2|0)+j/2|0],w=i*p+j,g[l][w]=d[l][w]=(i%2?j%2?(d[l][w+p]+d[l][w+1]+v)/3:(v+g[l-1][u+o])/2:j%2?(v+g[l-1][u+1])/2:v)+h*(Y-Math.random()),d[l][w]=6>d[l][w]?6:d[l][w]);o=i=p--;r/=2;for(D[l]=[];i--;)for(j=p;j--;){v=d[l][u=o*i+j];for(k=2;k--;D[l][Z++]=[m=i*r-9,q=j*r-9,v,(i+1-Z%2)*r-9,(j+Z%2)*r-9,z=d[l][u+(Z%2?1:o)],m+r,q+r,y=d[l][u+o+1],x=2+(z-y)/r,"hsl("+[70*(7<(y-=x)?1:(6==z)+6/y),21*(6<z?x*6/y:y)+"%",40*(7<y?x:6.03<z?x/3:6<z?x:1-Math.random()/5)]+"%)"]);}}e=function(f,n){a.fillRect(0,0,h=c.width=innerWidth-21,r=c.height=innerHeight-21);m=Math.cos(Z);w=Math.sin(Z);o=Math.cos(Y);x=Math.sin(Y);d=[];h/=2;for(l in D[8-T]){d[l]=[];for(j=9;j;v=D[8-T][l][--j]-R*o-2,u=D[8-T][l][--j]+R*m,t=D[8-T][l][--j]+R*w,d[l].push(z=o*v-(k=m*u+w*t)*x,(v*x+o*k)/z*r+r,(m*t-w*u)/z*h+h));d[l][9]=D[8-T][l][10]}d.sort(function(f,n){return f[3]-n[3]});for(l in d)a.strokeStyle=d[l][9],a.beginPath(),a.moveTo(d[l][8],d[l][7]),a.lineTo(d[l][5],d[l][4]),a.lineTo(d[l][2],d[l][1]),a.lineTo(d[l][8],d[l][7]),a.stroke();o=T?setTimeout(e,16):0};b.onclick=function(f,n){clearTimeout(o),e(T^=3)};b.onmousemove=function(f,n){Z=f.clientX/h;Y=f.clientY/r};b.onkeydown=function(f,n){R+=(40==f.which)-(38==f.which)};e(T^=3);
+*/
 
 		</script>
 	</body>
