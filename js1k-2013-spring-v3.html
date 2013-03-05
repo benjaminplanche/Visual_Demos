@@ -23,7 +23,7 @@ for(;l<8;){
 	for (; i--;)
 		for (j=p; j--;
 			v=g[l-1][u=o*(i/2|0)+j/2|0], w=i*p+j, g[l][w]=d[l][w] = (i%2?
-				j%2? (d[l][w+p]+d[l][w+1]+v)/3:(v+g[l-1][u+o])/2:
+				j%2? (d[l][w+p]+d[l][w+1]+2*v)/4:(v+g[l-1][u+o])/2:
 				j%2? (v+g[l-1][u+1])/2:v)+h*(Y-Math.random()),
 			d[l][w]=d[l][w] < 6?6:d[l][w]);
 
@@ -42,7 +42,7 @@ for(;l<8;){
 					q+r,
 					y=d[l][u+o+1],
 					x=2+(z-y)/r,
-					'hsl('+[99*(7<(y-=x)?1:(6==z)+4/y),28*(6<z?x*4/y:y)+'%',36*(7<y?x:6.03<z?x/3:6<z?x:1-Math.random()/5)]+'%)']);
+					'hsl('+[99*(7<(y-=x)?1:6<z?7/z:2),20*(6<z?x*3/y:y)+'%',44*(7<y?x:6.03<z?x/4:6<z?x:1-Math.random()/5)]+'%)']);
 		}
 }
 e=function(H,S,L){
@@ -66,22 +66,24 @@ e=function(H,S,L){
 		a.lineTo(d[l][2], d[l][1]),
 		a.lineTo(d[l][8], d[l][7]),
 		/*a.fill(), */a.stroke()
-	o=T?setTimeout(e,9):0
+	o=T?setTimeout(e,16):0
 };
 b.onclick=function(H,S,L){clearTimeout(o),e(T^=3)}
-b.onmousemove=function(H,S,L){Z=H.clientX/h,Y=H.clientY/r}
+b.onmousemove=function(H,S,L){Z=2*H.clientX/h,Y=2*H.clientY/r}
 /*b.onmousewheel=function(H,S,L){
 	R+=H.wheelDelta/99}*/ // Not supported by FF, alas...
 /*b.onkeydown=function(H,S,L){
 	R+=(H.which==40)-(H.which==38)} */ // ... so we use the arrows instead. Less elegant, and 6B heavier.
 b.onmousewheel=b.onwheel=function(H,S,L){
-    R+=H.deltaY|H.wheelDeltaY/40} // Cross-browser solution, but to heavy ... --Update: Now we can afford it! \o/
+    R+=H.deltaY|H.wheelDeltaY/60} // Cross-browser solution, but to heavy ... --Update: Now we can afford it! \o/
 e(T^=3)
 
-/* Ready to be jsCrushed (1325B to 1022B) :
-d=[];g=[];r=R=21;g[T=Z=l=0]=[o=2,Y=.6,9,h=8];for(D=[];8>l;){i=p=2*o-1;d[++l]=[];h/=2;for(g[l]=[];i--;)for(j=p;j--;v=g[l-1][u=o*(i/2|0)+j/2|0],w=i*p+j,g[l][w]=d[l][w]=(i%2?j%2?(d[l][w+p]+d[l][w+1]+v)/3:(v+g[l-1][u+o])/2:j%2?(v+g[l-1][u+1])/2:v)+h*(Y-Math.random()),d[l][w]=6>d[l][w]?6:d[l][w]);o=i=p--;r/=2;for(D[l]=[];i--;)for(j=p;j--;){;for(k=2;k--;D[l][Z++]=[m=i*r-9,q=j*r-9,d[l][u=o*i+j],(i+1-Z%2)*r-9,(j+Z%2)*r-9,z=d[l][u+(Z%2?1:o)],m+r,q+r,y=d[l][u+o+1],x=2+(z-y)/r,"hsl("+[70*(7<(y-=x)?1:(6==z)+6/y),21*(6<z?x*6/y:y)+"%",40*(7<y?x:6.03<z?x/3:6<z?x:1-Math.random()/5)]+"%)"]);}}e=function(f,n){a.fillRect(0,0,h=c.width=innerWidth-21,r=c.height=innerHeight-21);m=-Math.cos(Z);w=-Math.sin(Z);o=Math.cos(Y);x=Math.sin(Y);d=[];h/=2;for(l in D[8-T]){d[l]=[];for(j=9;j;v=D[8-T][l][--j]-R*o,u=D[8-T][l][--j]-R*m,t=D[8-T][l][--j]-R*w,d[l].push(z=o*v+(k=m*u+w*t)*x,(v*x-o*k)/z*r+r,(w*u-m*t)/z*h+h));d[l][9]=D[8-T][l][10]}d.sort(function(f,n){return f[3]-n[3]});for(l in d)a.strokeStyle=d[l][9],a.beginPath(),a.moveTo(d[l][8],d[l][7]),a.lineTo(d[l][5],d[l][4]),a.lineTo(d[l][2],d[l][1]),a.lineTo(d[l][8],d[l][7]),a.stroke();o=T?setTimeout(e,9):0};b.onclick=function(f,n){clearTimeout(o),e(T^=3)};b.onmousemove=function(f,n){Z=f.clientX/h;Y=f.clientY/r};b.onmousewheel=b.onwheel=function(f,n){R+=f.deltaY|f.wheelDeltaY/40};e(T^=3);
+/* Ready to be jsCrushed (1325B to 1022B):
+d=[];g=[];r=R=21;g[T=Z=l=0]=[o=2,Y=.6,9,h=8];for(D=[];8>l;){i=p=2*o-1;d[++l]=[];h/=2;for(g[l]=[];i--;)for(j=p;j--;v=g[l-1][u=o*(i/2|0)+j/2|0],w=i*p+j,g[l][w]=d[l][w]=(i%2?j%2?(v*2+d[l][w+p]+d[l][w+1])/4:(v+g[l-1][u+o])/2:j%2?(v+g[l-1][u+1])/2:v)+h*(Y-Math.random()),d[l][w]=6>d[l][w]?6:d[l][w]);o=i=p--;r/=2;for(D[l]=[];i--;)for(j=p;j--;){;for(k=2;k--;D[l][Z++]=[m=i*r-9,q=j*r-9,d[l][u=o*i+j],(i+1-Z%2)*r-9,(j+Z%2)*r-9,z=d[l][u+(Z%2?1:o)],m+r,q+r,y=d[l][u+o+1],x=2+(z-y)/r,"hsl("+[99*(7<(y-=x)?1:6<z?7/z:2),20*(6<z?x*3/y:y)+"%",40*(7<y?x:6.03<z?x/3:6<z?x:1-Math.random()/5)]+"%)"]);}}e=function(f,n){a.fillRect(0,0,h=c.width=innerWidth-21,r=c.height=innerHeight-21);m=-Math.cos(Z);w=-Math.sin(Z);o=Math.cos(Y);x=Math.sin(Y);d=[];h/=2;for(l in D[8-T]){d[l]=[];for(j=9;j;v=D[8-T][l][--j]-R*o,u=D[8-T][l][--j]-R*m,t=D[8-T][l][--j]-R*w,d[l].push(z=o*v+(k=m*u+w*t)*x,(v*x-o*k)/z*r+r,(w*u-m*t)/z*h+h));d[l][9]=D[8-T][l][10]}d.sort(function(f,n){return f[3]-n[3]});for(l in d)a.strokeStyle=d[l][9],a.beginPath(),a.moveTo(d[l][8],d[l][7]),a.lineTo(d[l][5],d[l][4]),a.lineTo(d[l][2],d[l][1]),a.lineTo(d[l][8],d[l][7]),a.stroke();o=T?setTimeout(e,16):0};b.onclick=function(f,n){clearTimeout(o),e(T^=3)};b.onmousemove=function(f,n){Z=2*f.clientX/h;Y=2*f.clientY/r};b.onmousewheel=b.onwheel=function(f,n){R+=f.deltaY|f.wheelDeltaY/40};e(T^=3);
 */
 
+/* jsCrushed (1023B):
+_='dgr=R1;g[T=Z=l=0L[o,Y=.6,9,h=8];D8>l;Ni=p*o-1;d[++l]hgv==o&iV)+jVw=i*p+j,gwL=(ij(v*2_p]_1]4:Co`jC1`v)+h&Y!=6>?6:Ai=prDN;k;kDZ++L[m=iq=j	u=o*i+j(i+1-E(j+Ez=	u+(Z1:o)mBqBy=	u+o+1x+(z-yr,"hsl("+[99&7<(y-=x)?1:67/z:2!20&6x*3/y:y)+"%",40&7<y?x:6.03x/3:6x:1/5)]+"%)"]}}eO@fillRect(0,0,h=c.widQFWidQ-21,r=c.hGFHG-21m=-IZw=-s(ZAIYx=s(Ydhl  Ndj=9;j;vo,um,tw,d.push(z=o*v+(k=m*u+w*t)*x,(v*x-o*kz*rB(w*u-m*tz*h+h)	9L10]}d.sort(return f[3]-n[3]}l  d)Style=	9@begPaQ(!@movJ8U75U42U18U7]!(AT?sete,16):0clickOclearo!#)$moveOZX/h;YY/r$=b.onOR+=f.dK|f.DK/40};#[function(f,nN=--j]-R*]!@lJfor(=[];MaQ.i)j=p;j	dg[l-1][u*r-9,);D[8-T]};b.on*f.client-random()=2],wheelin@strokeTimeout(	w]%2?--;<z?[l]/;)/!),#e(T^=3$mouse&*(@a.Ao=B+r,C(v++EZ%2)F=nerGeightIcos(JeTo(	KeltaYL]=N){O=QthU	V/2|0_+	w+`]2:';for(Y in $='`_VUQONLKJIGFECBA@&$#!	')with(_.split($[Y]))_=join(pop());eval(_)*/
 		</script>
 	</body>
 </html>
