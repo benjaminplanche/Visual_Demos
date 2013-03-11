@@ -13,123 +13,166 @@
 			document.body.clientWidth; // fix bug in webkit: http://qfox.nl/weblog/218
 		</script>
 		<script>
-//	// "BEAUTIFIED" SOURCE, made from the much dirtier original one (10kB limit here, so to take a look aat the implementation process, or at the tricks used, check my website)
-//
-//	// Maps:
-//	var mapFacesSphere=[], mapFacesCube=[];
-//	var NB_DIVISIONS = 16;
-//	var SIZE = 5;
-//	var RADIUS = SIZE/2;
-//
-//	var wHeight, wWidth; 					// Window dimensions.
-//	var cameraDistance = 9;					// Camera distance to the origin
-//
-//	var GenerateVertex = function(i, j, mC, mS, faceId) {
-//		var coord = [i/NB_DIVISIONS*SIZE-RADIUS, j/NB_DIVISIONS*SIZE-RADIUS, RADIUS*(1-2*(f%2))];
-//		var x = coord[f%3], y = coord[(f+1)%3], z = coord[(f+2)%3];
-//		mapFacesCube[faceId].push(x,y,z);
-//		
-//		dist = Math.sqrt(x*x+y*y+z*z);
-//		mapFacesSphere[faceId].push(
-//			// 1st vertex
-//				x/dist*RADIUS/**(dist-RADIUS)*(RADIUS-dist)*/,
-//				y/dist*RADIUS/**(dist-RADIUS)*(RADIUS-dist)*/,
-//				z/dist*RADIUS/**(dist-RADIUS)*(RADIUS-dist)*/);	
-//	}
-//
-//	var faceId = 0;
-//	// As previously, we iterate desc. The idea is that for each element we iterate on, we evaluate the faces of the square which as for top-left corner this element. So we don't want to iterate on the last column and last row. We thus start at the previous ones (reason why we decreased newDim by 1):
-//	for (var f = 6; f--;) {
-//		for (var i=NB_DIVISIONS; i--;) {
-//			// X --- o	Schema representing the faces extracted from a square. X is the current element.
-//			// |  \  |
-//			// o --- o
-//			for (j = NB_DIVISIONS; j--;) {
-//				for (k=2;k--;) { // We iterate 2 times for each square in order to generate the 2 corresponding triangle-faces.
-//					// We store each face information into an array [V1.X, V1.Y, V1.Z, V2.X, V2.Y, V2.Z, V3.X, V3.Y, V3.Z, color]:
-//					mapFacesSphere[faceId] = [];
-//					mapFacesCube[faceId] = [];
-//					GenerateVertex(i,j,mapFacesCube,mapFacesSphere, faceId);
-//					GenerateVertex(i+k,j+1-k,mapFacesCube,mapFacesSphere, faceId);
-//					GenerateVertex(i+1,j+1,mapFacesCube,mapFacesSphere, faceId);
-//					
-//					mapFacesSphere[faceId].push(dist);
-//					faceId++;
-//				}
-//			}
-//		}
-//	}
-//
-//
-//	var T = 0;
-//	var Tween = function(a,b,t,m) { return a*t-m*b*(1-t); } 
-//	var Pulse = function(x,c,w) { var h=Math.abs(c-x)/w; return h>1?0:1-(3-2*h)*h*h;} 
-//	var pulseTans = [];
-//	var Paint = function(){
-//		// Clearing the canvas:
-//		a.fillRect(0, 0, wWidth=c.width=innerWidth-21,wHeight=c.height=innerHeight-21);
-//		wWidth/=2; wHeight/=2;
-//		var screenCoordinates = [];
-//		
-//		var coefTween = Math.cos(++T/23);
-//		var sign = Math.sin(T/37);
-//		var pulseCos, pulseTan = 0;
-//		for(var z in pulseTans){
-//			pulseTan+=Pulse(pulseTans[z]--,49,49);
-//			pulseTans[z]||pulseTans.shift(); // clean, but optional
-//		}
-//		pulseTan *= pulseTan;	
-//		pulseCos = Pulse(T%300,99,99)/2;
-//		var m=-Math.cos(T/37),w=-Math.sin(T/37),o=Math.cos(T/23),x=Math.sin(T/23); // To avoid repeating the callings.
-//		
-//		for (l in mapFacesCube) {  // Not optimal, but shorter.
-//			screenCoordinates[l] = []
-//			for (j = 9;j;) { // For each vertex of the face.
-//				// 3D projection. See https://en.wikipedia.org/wiki/3D_projection to find the whole linearized formula ans explanations.
-//				var v=Tween(mapFacesCube[l][--j], mapFacesSphere[l][j], coefTween+pulseCos, sign)+cameraDistance*o*(1-Math.cos(T/37+Math.tan(mapFacesSphere[l][9])*pulseTan))*Math.cos(mapFacesSphere[l][9]*pulseCos),
-//				u=Tween(mapFacesCube[l][--j], mapFacesSphere[l][j], coefTween-pulseCos, sign)+cameraDistance*x*m*(1-Math.sin(T/23+Math.tan(mapFacesSphere[l][9])*pulseTan))*Math.cos(mapFacesSphere[l][9]*pulseCos),
-//				t=Tween(mapFacesCube[l][--j], mapFacesSphere[l][j], coefTween+pulseCos, sign)+cameraDistance*x*w*(1-Math.sin(T/37+Math.tan(mapFacesSphere[l][9])*pulseTan))*Math.cos(mapFacesSphere[l][9]*pulseCos); // Note: we don't multiply u and v by sin(angleHeading), giving thus another degree of freedom to the camera.
-//				
-//				// For each face, we store its screen information into an array [P1.dist, P1.X, P1.Y, P2.dist, P2.X, P2.Y, P3.dist, 3.X, P3.Y, color], with dist the depth viewed from the camera:
-//				screenCoordinates[l].push(z = o*v+ (k=m*u+w*t)*x,(v*x-o*k)/z*wHeight + wHeight,(w*u-m*t)/z*wWidth + wWidth);
-//			}
-//			//screenCoordinates[l][9] = mapFacesSphere[8-wantMove][l][9] // We also copy the colors.
-//			screenCoordinates[l][9] = mapFacesSphere[l][9]
-//		}
-//		
-//		// To draw the mesh, we use the simple Painter's algorithm (which works well in our case, since we don't have overlapping elements): we sort the faces by decreasing depth (we will simply use P2.dist instead of the average) and draw them it this order.
-//		screenCoordinates.sort(function(H,S,L){return H[3]-S[3]}); // Sorting
-//				
-//		for (l in screenCoordinates) // Drawing each face. I had to choose between only stroking the triangles, only filling them, or sacrificing another feature. I found the holes left by only stroking interesting, like a reminder of those which are part of the universe fabric. ;-)
-//			
-//			a.beginPath(a.fillStyle = a.strokeStyle='hsl('+[399*coefTween/screenCoordinates[l][9],'50%',l/75*Math.cos(pulseCos/7)]+'%)'),
-//			a.moveTo(screenCoordinates[l][8], screenCoordinates[l][7]),
-//			a.lineTo(screenCoordinates[l][5], screenCoordinates[l][4]),
-//			a.lineTo(screenCoordinates[l][2], screenCoordinates[l][1]),
-//			a.closePath(),
-//			a.stroke(),
-//			a.fill()
-//	};
-//
-//	// Finally, some interactivity:
-//	b.onclick = function(){pulseTans.push(99)};
-//
-//	b.onmousemove = function(H) {	// We tie the mouse position with the camera orientation.
-//		angleYaw = 2*H.clientX/wWidth;
-//		angleHeading = 2*H.clientY/wHeight
-//	}
-//	//b.onmousewheel=function(H){
-//	//	cameraDistance+=H.wheelDelta/99} // Not supported by FF, alas...
-//	//b.onkeydown=function(H){
-//	//	cameraDistance+=(H.which==40)-(H.which==38)} // ... so we use the arrows instead. Less elegant, and 6B heavier.
-//	b.onmousewheel=b.onwheel = function(H) { // Cross-browser solution, but too heavy ... --Update: Now we can afford it! \o/
-//		cameraDistance -= H.deltaY | -H.wheelDeltaY/40;
-//	}
-//	*/
-//	setInterval(Paint,16);
-
 /*
-How to minify the demo? Tricks I learned ...
+// "BEAUTIFIED" SOURCE, made from the much dirtier original one (10kB limit here, so to take a look at the implementation process, or at the tricks used, check my website)
+
+// Maps:
+var facesSphere=[], facesCube=[],	// Meshes
+	NB_DIV = 16,					// Number of rows and colums per cube's face, which means our meshes will be made of 6*16*16 vertices
+	SIZE = 4,						// Dimension of our meshes
+	RADIUS = SIZE/2,				// Mid-dim
+	
+	T = 0, 							// Time
+	pulseTans = [],					// Array to contain the "pulse" requests made by the user when clicking.
+	
+	wHeight, wWidth, 				// Window dimensions.
+	camDist = 4,					// Camera distance to the origin
+	angleYaw = angleHeading = 4,	// Angles defining the camera orientation
+	X = navigator.vendor?1:2; 		// The demo is so slow with FF & Op that I decided to reduce the number of vertices for these browsers.
+	// navigator.vendor -> String which seems only defined / not empty for Chrome
+
+///
+// Given the subdivision indices, generates the corresponding vertex for the cube and sphere meshes (centered on the origin), and gives it to the current triangle faces.
+// Parameters:
+//	- i : Row num
+//	- j : Col num
+//	- face : Face of the cube we are currently dealing with
+//	- trId : index of the current faces
+// Returns: the distance of the cube vertex from its origin.
+///
+function GenerateVertex (i, j, face, trId) {
+	// First we generate the cube vertex. Using some modulos on the face index, we can cover each case, by swapping the coordinates order or moving the vertex along the depth axis:
+	var coord = [i/NB_DIV*X*SIZE-RADIUS, j/NB_DIV*X*SIZE-RADIUS, RADIUS*(1-2*(face%2))], 
+		x = coord[face%3], y = coord[(face+1)%3], z = coord[(face+2)%3];
+	facesCube[trId].push(x,y,z);
+	
+	// Then the sphere vertex, by "cube-mapping" (the following formula speaks for itself):
+	var dist = Math.sqrt(x*x+y*y+z*z);
+	facesSphere[trId].push(x/dist*RADIUS, y/dist*RADIUS, z/dist*RADIUS);	
+	return dist;
+}
+
+var trId = 0;
+// To save some bytes, we iterate desc. The idea is that for each element we iterate on, we evaluate the triangles faces of the square which as for top-left corner this element. So we don't want to iterate on the last column and last row. We thus start at the previous ones (reason why we decreased newDim by 1):
+for (var f = 6; f--;)
+	for (var i=NB_DIV/X; i--;)
+		// X --- o	Schema representing the faces extracted from a square. X is the current element.
+		// |  \  |
+		// o --- o
+		for (j = NB_DIV/X; j--;) for (k=2;k--;) // We iterate 2 times for each square in order to generate the 2 corresponding triangle-faces.
+			// We store each face information into an array [V1.X, V1.Y, V1.Z, V2.X, V2.Y, V2.Z, V3.X, V3.Y, V3.Z, color]:
+			facesSphere[trId] = [],
+			facesCube[trId] = [],
+			GenerateVertex(i,j, f, trId), 	// 1st vertex (top-left corner of the square)
+			GenerateVertex(i+1,j+1, f, trId),	// 2nd vertex (bottom-right)
+													// 3rd vertex - the one varying (either corresponding to the element on the next row, or the one on the next col). We use a modulo 2 on the face's id to select the good one.
+			// Byte saving trick:(faceId+1)%2 = k. And we don't mind which triangle we generate first, so k makes a cheaper way to distinguish them.
+			facesSphere[trId].push(GenerateVertex(i+k,j+1-k, f, trId)), // Will be useful to add some visual effects during the rendering.
+			trId++;
+
+///
+// Special tweening...
+// Parameters:
+//	- cubeCoord - Coordinate from the 1st mesh
+//	- sphereCoord - Coordinate from the 2nd mesh
+// 	- t - Tween coef
+//	- i - Just another parameter (the time) to make the tweening looks more random
+//	- pulseCos - Another one, this time adding sometime some "holes" in the results
+// Returns: the "intermediate" value
+///
+function Tween (cubeCoord,sphereCoord,t,T,pulseCos) {
+	return Math.cos(T/47+t)*cubeCoord*(pulseCos+t)-Math.sin(T/31+t)*sphereCoord*(1-(pulseCos+t));
+} 
+
+///
+// Cubic pulse - Thanks to Inigo Quilez (for this function and all the nice articles)
+// Parameters:
+//	- x - Input value
+//	- c - Center of the pulse
+//	- w - Width of the pulse
+//	Returns: a cubic value if x in [c-w;c+w], 0 otherwise.
+///
+function Pulse (x,c,w) {
+	var h=Math.abs(c-x)/w;
+	return h>1?0:1-(3-2*h)*h*h;
+} 
+
+///
+// Renders the scene.
+///
+function Paint () {
+	// Clearing the canvas:
+	a.fillRect(0, 0, wWidth=c.width=innerWidth-21,wHeight=c.height=innerHeight-21);
+	wWidth/=2; wHeight/=2;
+	var screenCoord = [], // Will contain the projection of the 3D vertices on the 2D screen.
+	
+	// Some values for the tweening:
+	coefTween = Math.cos(++T/23),
+	
+	// We add 2 "pulses" to the scene:
+	//	- A regular one (pulseCos), adding a small disturbance creating "holes" in the tweened mesh.
+	//	- A one requested by the user (pulseTan), adding stronger disturbances the more the user clicks.
+	pulseCos, pulseTan = 0;
+	for(var z in pulseTans){ // We iterate on the array of pulse requests to evaluate the total value of this pulse:
+		// The request is defined by a value representing the lifespan of the corresponding impulse. So we decrement it at each rendering.
+		pulseTan+=Pulse(pulseTans[z]--,49,49); 
+		pulseTans[z]||pulseTans.shift(); // Clean, but optional: we remove the request out of the array once its lifespan reaches 0.
+	}
+	pulseTan *= pulseTan;	
+	pulseCos = Pulse(T%300,99,99)/2;
+	
+	var y=-Math.cos(angleYaw+T/31),w=-Math.sin(angleYaw+T/31),z=Math.cos(angleHeading+T/47),x=Math.sin(angleHeading+T/47); // To avoid repeating the callings.
+	
+	for (l in facesCube) {  // Not optimal, but shorter.
+		screenCoord[l] = []
+		var coef = camDist*(1-Math.cos(T/47+Math.tan(facesSphere[l][9])*pulseTan))*Math.cos(facesSphere[l][9]*pulseCos); // A coef taking into account the camera distance and the pulses effects.
+		for (j = 9;j;) { // For each vertex of the face.
+			// 3D projection. See https://en.wikipedia.org/wiki/3D_projection to find the whole linearized formula ans explanations.		
+			// ... but actually in this demo, I decided to invert the depth, making the rendered mesh looks a bit unreal, insubstantial. To do so, I add the camera's position (coef) to the coordinates instead of substracting it. (Though, by pressing any key, it is possible to re-invert the depth to get it right)
+			var v=Tween(facesCube[l][--j], facesSphere[l][j], coefTween, T, pulseCos)+coef*z,
+			u=Tween(facesCube[l][--j], facesSphere[l][j], coefTween, T, pulseCos)+coef*x*y,
+			r=Tween(facesCube[l][--j], facesSphere[l][j], coefTween, T, pulseCos)+coef*x*w;
+			
+			// For each face, we store its screen information into an array [P1.Z, P1.Y, P1.X, P2.Z, P2.Y, P2.X, P3.Z, P3.Y, P3.X, origDist], with Z the depth viewed from the camera:
+			var k = y*u+w*r, N = z*v+x*k;
+			screenCoord[l].push(N,(x*v-z*k)/N*wHeight + wHeight +.5|0,(w*u-r*y)/N*wWidth + wWidth +.5|0);
+		}
+		screenCoord[l][9] = facesSphere[l][9]
+	}
+	
+	// To draw the mesh, we use the simple Painter's algorithm (which works well in our case, since we don't have overlapping elements): we sort the faces by decreasing depth (we will simply use P3.dist instead of the average) and draw them it this order.
+	screenCoord.sort(function(H,S){return H[6]-S[6]}); // Sorting
+			
+	for (l in screenCoord) // Evaluating the face color and drawing it:
+		a.fillStyle = a.strokeStyle='hsl('+[
+			399*coefTween/screenCoord[l][9],	// Hue - Function of the time and of the original distance to the origin.
+			'50%',									// Saturation - constant
+			l/75*X*X*Math.cos(pulseCos/7)			// Luminosity - Function of the periodic pulse + Cheap fog effect by using the sorted index
+		]+'%)',
+		a.beginPath(),
+		a.moveTo(screenCoord[l][8], screenCoord[l][7]),
+		a.lineTo(screenCoord[l][5], screenCoord[l][4]),
+		a.lineTo(screenCoord[l][2], screenCoord[l][1]),
+		a.closePath(),
+		a.stroke(),
+		a.fill()
+};
+
+b.onclick = function(){	// New impulse on click
+	pulseTans.push(99);
+};
+b.onmousemove = function(H) {	// We tie the mouse position with the camera orientation.
+	angleYaw = 2*H.clientX/wWidth;
+	angleHeading = 2*H.clientY/wHeight;
+}
+b.onkeyup=function(A,B){	// We give the possibility to switch between the "inverted depth mode" and the normal one, by pressing any key.
+	camDist = -camDist;
+}
+
+setInterval(Paint,16);
+*/
+/*
+How to minify the demo? Tricks I learned...
 	- Closure Compiler and JsCrush are your friends
 	- Check github.com/jed/140bytes/wiki/Byte-saving-techniques to learn more dirty tricks.
 	- Omit "var", noone will mind
@@ -144,109 +187,117 @@ How to minify the demo? Tricks I learned ...
 			- Limit the number of variables, and reuse them smartly (ex: if you keep using the variable A for arrays and i for the indices, every expression "A[i]" will be crushed, saving you 3n-7 bytes, with n the number of times this expression appears)
 			- Rearrange your expressions to create new pattern, by ordering the symbols appearances (ex: rearrange "m=i*r-9;q=r*j-9;" into "m=i*r-9;q=j*r-9;" to make the pattern "*r-9;" appears)
 			- Use exactly same function signatures (take the longest one and assign it to every function)
-		- Check the output of Closure Compile beforehand. It may have altered your signatures or symbols arrangements. It also adds a "useless" semicolon at the end of your script.
+		- Check the output of Closure Compile beforehand. It may have altered your signatures or symbols arrangements. It also adds an "useless" semicolon at the end of your script.
 		- Save 2 bytes by changing the jsCrush bootstrap: replace "for(Y=0;$='CHAR'[Y++];)with(_.split($))_=join(pop());" by "for(Y in $='CHAR')with(_.split($[Y]))_=join(pop());"
 	- Adapt your equations to the context to avoid useless operations or steps / Look at the whole picture
+
+Thanks for the attention!
 */
 
-//	try{webkitURL,X=1}catch(e){X=2}; // So slow with FF & Op...
-//	// Maps:
-//	S=[], C=[],
-//	T = [],
-//	t = Z = Y = F = U=4;
-//	I=Math; J=I.cos; K=I.sin; L=I.tan;
-//	V = function(A, B) {
-//		v = [A*X/4-2, B*X/4-2, 2-4*(f%2)];
-//		x = v[f%3], y = v[(f+1)%3], z = v[(f+2)%3];
-//		C[F].push(x,y,z);
-//		
-//		d = I.sqrt(x*x+y*y+z*z);
-//		S[F].push(
-//			// 1st vertex
-//				x/d/**(d-R)*(R-d)*/,
-//				y/d/**(d-R)*(R-d)*/,
-//				z/d/**(d-R)*(R-d)*/);	
-//	}
-//	
-//	// As previously, we iterate desc. The idea is that for each element we iterate on, we evaluate the faces of the square which as for top-left corner this element. So we don't want to iterate on the last column and last row. We thus start at the previous ones (reason why we decreased newDim by 1):
-//	for (f = 6; f--;)
-//		for (i=16/X; i--;)
-//			// X --- o	Schema representing the faces extracted from a square. X is the current element.
-//			// |  \  |
-//			// o --- o
-//			for (j = 16/X; j--;)
-//				for (k=2;k--;) // We iterate 2 times for each square in order to generate the 2 corresponding triangle-faces.
-//					// We store each face information into an array [V1.X, V1.Y, V1.Z, V2.X, V2.Y, V2.Z, V3.X, V3.Y, V3.Z, color]:
-//					S[F] = [],
-//					C[F] = [],
-//					V(i,j),
-//					V(i+k,j+1-k),
-//					V(i+1,j+1),
-//					S[F][9]=d,
-//					F++;
-//	
-//	
-//	V = function(A,B) { return A*(R+i)-K(t/47)*B*(1-(R+i)); } 
-//	P = function(A,B) { y=I.abs(B-A)/B; return y>1?0:1-(3-2*y)*y*y;} 
-//	M = function(A,B){
-//		// Clearing the canvas:
-//		a.fillRect(0, 0, W=c.width=innerWidth-21,H=c.height=innerHeight-21);
-//		W/=2; H/=2;
-//		s = [];
-//		
-//		i = J(t/23);
-//		D = 0;
-//		for(F in T)
-//			D+=P(T[F]--,47),
-//			T[F]||T.shift(); // clean, but optional
-//		R = P(++t%263,97)/2;
-//		y=-J(Z+t/23),w=-K(Z+t/23),z=J(Y+t/47),x=K(Y+t/47); // To avoid repeating the callings.
-//		
-//		for (F in C) {  // Not optimal, but shorter.
-//			s[F] = [];
-//			A=U*(1-J(t/23+L(S[F][9])*D))*J(S[F][9]*R);
-//			
-//			for (f = 9;f;
-//				// 3D projection. See https://en.wikipedia.org/wiki/3D_projection to find the whole linearized formula ans explanations.
-//				v=V(C[F][--f], S[F][f])+A*z,
-//				u=V(C[F][--f], S[F][f])+A*x*y,
-//				r=V(C[F][--f], S[F][f])+A*x*w, // Note: we don't multiply u and v by sin(angleHeading), giving thus another degree of freedom to the camera.
-//				
-//				// For each face, we store its screen information into an array [P1.d, P1.X, P1.Y, P2.d, P2.X, P2.Y, P3.d, 3.X, P3.Y, color], with d the depth viewed from the camera:
-//				s[F].push(N = z*v+x*(k=y*u+w*r),(x*v-z*k)/N*H + H +.5|0,(w*u-r*y)/N*W + W +.5|0));
-//	
-//			//s[F][9] = S[8-wantMove][F][9] // We also copy the colors.
-//			s[F][9] = S[F][9]
-//		}
-//		
-//		// To draw the mesh, we use the simple Painter's algorithm (which works well in our case, since we don't have overlapping elements): we sort the faces by decreasing depth (we will simply use P2.d instead of the average) and draw them it this order.
-//		s.sort(function(A,B){return A[3]-B[3]}); // Sorting
-//				
-//		for (F in s) // Drawing each face. I had to choose between only stroking the triangles, only filling them, or sacrificing another feature. I found the holes left by only stroking interesting, like a reminder of those which are part of the universe fabric. ;-)
-//			a.fillStyle = a.strokeStyle='hsl('+[i/s[F][9]*263+.5|0,'47%',F*X*X/97*J(R/23)+.5|0]+'%)',
-//			a.beginPath(),
-//			a.moveTo(s[F][8], s[F][7]),
-//			a.lineTo(s[F][5], s[F][4]),
-//			a.lineTo(s[F][2], s[F][1]),
-//			a.lineTo(s[F][8], s[F][7]),
-//			a.stroke(),
-//			a.fill()
-//	}
-//	
-//	// Finally, some interactivity:
-//	b.onclick = function(A,B){T.push(97)};
-//	b.onmousemove=function(A,B){Z=A.clientX/W,Y=A.clientY/H}
-//	//b.onmousewheel=function(H,S,L){
-//	//	R+=H.wheelDelta/99} // Not supported by FF, alas...
-//	//b.onkeydown=function(H,S,L){
-//	//	R+=(H.which==40)-(H.which==38)} // ... so we use the arrows instead. Less elegant, and 6B heavier.
-//	b.onmousewheel=b.onwheel=function(A,B){U-=A.deltaY/2|-A.wheelDeltaY/97}
-//	
-//	setInterval(M,16);
+/*
+	X=navigator.vendor?1:2; // So slow with FF & Op...
+	// Maps:
+	S=[], C=[],
+	T = [],
+	t = Z = Y = F = U=4;
+	I=Math; J=I.cos; K=I.sin; L=I.tan;
+	V = function(A, B) {
+		v = [A*X/4-2, B*X/4-2, 2-4*(f%2)];
+		x = v[f%3], y = v[(f+1)%3], z = v[(f+2)%3];
+		C[F].push(x,y,z);
+		
+		d = I.sqrt(x*x+y*y+z*z);
+		S[F].push(
+			// 1st vertex
+				x/d,
+				y/d,
+				z/d);	
+	}
+	
+	// As previously, we iterate desc. The idea is that for each element we iterate on, we evaluate the faces of the square which as for top-left corner this element. So we don't want to iterate on the last column and last row. We thus start at the previous ones (reason why we decreased newDim by 1):
+	for (f = 6; f--;)
+		for (i=16/X; i--;)
+			// X --- o	Schema representing the faces extracted from a square. X is the current element.
+			// |  \  |
+			// o --- o
+			for (j = 16/X; j--;)
+				for (k=2;k--;) // We iterate 2 times for each square in order to generate the 2 corresponding triangle-faces.
+					// We store each face information into an array [V1.X, V1.Y, V1.Z, V2.X, V2.Y, V2.Z, V3.X, V3.Y, V3.Z, color]:
+					S[F] = [],
+					C[F] = [],
+					V(i,j),
+					V(i+1,j+1),
+					V(i+k,j+1-k),
+					S[F][9]=d,
+					F++;
+	
+	
+	V = function(A,B) { return J(t/47+i)*A*(R+i)-K(t/31+i)*B*(1-(R+i)); } 
+	P = function(A,B) { y=I.abs(B-A)/B; return y>1?0:1-(3-2*y)*y*y;} 
+	M = function(A,B){
+		// Clearing the canvas:
+		a.fillRect(0, 0, W=c.width=innerWidth-21,H=c.height=innerHeight-21);
+		W/=2; H/=2;
+		s = [];
+		
+		i = J(t/23);
+		D = 0;
+		for(F in T)
+			D+=P(T[F]--,47),
+			T[F]||T.shift(); // clean, but optional
+		R = P(++t%263,97)/2;
+		y=-J(Z+t/31),w=-K(Z+t/31),z=J(Y+t/47),x=K(Y+t/47); // To avoid repeating the callings.
+		
+		for (F in C) {  // Not optimal, but shorter.
+			s[F] = [];
+			A=U*(1-J(t/47+L(S[F][9])*D))*J(S[F][9]*R);
+			
+			for (f = 9;f;
+				// 3D projection. See https://en.wikipedia.org/wiki/3D_projection to find the whole linearized formula ans explanations.
+				v=V(C[F][--f], S[F][f])+A*z,
+				u=V(C[F][--f], S[F][f])+A*x*y,
+				r=V(C[F][--f], S[F][f])+A*x*w, // Note: we don't multiply u and v by sin(angleHeading), giving thus another degree of freedom to the camera.
+				
+				// For each face, we store its screen information into an array [P1.d, P1.X, P1.Y, P2.d, P2.X, P2.Y, P3.d, 3.X, P3.Y, color], with d the depth viewed from the camera:
+				s[F].push(N = z*v+x*(k=y*u+w*r),(x*v-z*k)/N*H + H +.5|0,(w*u-r*y)/N*W + W +.5|0));
+	
+			//s[F][9] = S[8-wantMove][F][9] // We also copy the colors.
+			s[F][9] = S[F][9]
+		}
+		
+		s.sort(function(A,B){return A[6]-B[6]}); // Sorting
+				
+		for (F in s)
+			a.fillStyle = a.strokeStyle='hsl('+[
+				i/s[F][9]*263+.5|0, // Hue - Function of the time and of the position relative to the origin.
+				'47%',				// Saturation - constant
+				F*X*X/97*J(R/7)+.5|0// Luminosity - Function of the regular pulse + Cheap fog effect by using the sorted index
+			]+'%)',
+			a.beginPath(),
+			a.moveTo(s[F][8], s[F][7]),
+			a.lineTo(s[F][5], s[F][4]),
+			a.lineTo(s[F][2], s[F][1]),
+			a.lineTo(s[F][8], s[F][7]),
+			a.stroke(),
+			a.fill()
+	}
+	
+	// Finally, some interactivity:
+	b.onclick = function(A,B){T.push(97)};
+	b.onmousemove=function(A,B){Z=A.clientX/W,Y=A.clientY/H}
+	//b.onmousewheel=function(H,S,L){
+	//	R+=H.wheelDelta/99} // Not supported by FF, alas...
+	//b.onkeydown=function(H,S,L){
+	//	R+=(H.which==40)-(H.which==38)} // ... so we use the arrows instead. Less elegant, and 6B heavier.
+	b.onmousewheel=b.onwheel=function(A,B){U-=A.deltaY/2|-A.wheelDeltaY/97}
+	b.onkeyup=function(A,B){U=-U}
+	
+	setInterval(M,16);
+*/
 
-X=navigator.vendor?1:2;S=[],C=[],T=[],t=Z=Y=F=U=4,V=function(e,g){v=[e/4*X-2,g/4*X-2,2-4*(f%2)],x=v[f%3],y=v[(f+1)%3],z=v[(f+2)%3],C[F].push(x,y,z),d=Math.sqrt(x*x+y*y+z*z),S[F].push(x/d,y/d,z/d)};for(f=6;f--;)for(i=16/X;i--;)for(j=16/X;j--;)for(k=2;k--;)S[F]=[],C[F]=[],V(i,j),V(i+k,j+1-k),V(i+1,j+1),S[F][9]=d,F++;V=function(e,g){return e*(R+i)-Math.sin(t/47)*g*(1-(R+i))},P=function(e,g){y=Math.abs(g-e)/g;return 1<y?0:1-(3-2*y)*y*y};
-M=function(e,g){a.fillRect(0,0,W=c.width=innerWidth-21,H=c.height=innerHeight-21),W/=2,H/=2,s=[],i=Math.cos(t/23),D=0;for(F in T)D+=P(T[F]--,47),T[F]||T.shift();R=P(++t%263,97)/2,y=-Math.cos(Z+t/23),w=-Math.sin(Z+t/23),z=Math.cos(Y+t/47),x=Math.sin(Y+t/47);for(F in C){s[F]=[],e=U*(1-Math.cos(t/23+Math.tan(S[F][9])*D))*Math.cos(S[F][9]*R);for(f=9;f;v=V(C[F][--f],S[F][f])+e*z,u=V(C[F][--f],S[F][f])+e*x*y,r=V(C[F][--f],S[F][f])+e*x*w,s[F].push(N=z*v+x*(k=y*u+w*r),(x*v-z*k)/N*H+H+.5|0,(w*u-r*y)/N*W+W+.5|0));s[F][9]=S[F][9]}s.sort(function(e,g){return e[3]-g[3]});
-for(F in s)a.fillStyle=a.strokeStyle="hsl("+[263*(i/s[F][9])+.5|0,"47%",F*X*X/97*Math.cos(R/23)+.5|0]+"%)",a.beginPath(),a.moveTo(s[F][8],s[F][7]),a.lineTo(s[F][5],s[F][4]),a.lineTo(s[F][2],s[F][1]),a.lineTo(s[F][8],s[F][7]),a.stroke(),a.fill()};b.onclick=function(e,g){T.push(97)};b.onmousemove=function(e,g){Z=2*e.clientX/W,Y=2*e.clientY/H};setInterval(M,16)
+X=navigator.vendor?1:2;S=[],C=[],T=[],t=Z=Y=F=U=4,V=function(e,g){v=[e/4*X-2,g/4*X-2,2-4*(f%2)],x=v[f%3],y=v[(f+1)%3],z=v[(f+2)%3],C[F].push(x,y,z),d=Math.sqrt(x*x+y*y+z*z),S[F].push(x/d,y/d,z/d)};for(f=6;f--;)for(i=16/X;i--;)for(j=16/X;j--;)for(k=2;k--;)S[F]=[],C[F]=[],V(i,j),V(i+1,j+1),V(i+k,j+1-k),S[F][9]=d,F++;V=function(e,g){return Math.cos(t/47+i)*e*(R+i)-Math.sin(t/97+i)*g*2*(1-(R+i))},P=function(e,g){y=Math.abs(g-e)/g;return 1<y?0:1-(3-2*y)*y*y};
+M=function(e,g){a.fillRect(0,0,W=c.width=innerWidth-21,H=c.height=innerHeight-21),W/=2,H/=2,s=[],i=Math.cos(t/23),D=0;for(F in T)D+=P(T[F]--,47),T[F]||T.shift();R=P(++t%263,97)/2,y=-Math.cos(Z+t/31),w=-Math.sin(Z+t/31),z=Math.cos(Y+t/47),x=Math.sin(Y+t/47);for(F in C){s[F]=[],e=U*(1-Math.cos(t/47+Math.tan(S[F][9])*D))*Math.cos(S[F][9]*R);for(f=9;f;v=V(C[F][--f],S[F][f])+e*z,u=V(C[F][--f],S[F][f])+e*x*y,r=V(C[F][--f],S[F][f])+e*x*w,s[F].push(N=z*v+x*(k=y*u+w*r),(x*v-z*k)/N*H+H+.5|0,(w*u-r*y)/N*W+W+.5|0));s[F][9]=S[F][9]}s.sort(function(e,g){return e[6]-g[6]});
+for(F in s)a.fillStyle=a.strokeStyle="hsl("+[263*(i/s[F][9])+.5|0,"47%",F*X*X/97*Math.cos(R/7)+.5|0]+"%)",a.beginPath(),a.moveTo(s[F][8],s[F][7]),a.lineTo(s[F][5],s[F][4]),a.lineTo(s[F][2],s[F][1]),a.lineTo(s[F][8],s[F][7]),a.stroke(),a.fill()};b.onclick=function(e,g){T.push(97)};b.onmousemove=function(e,g){Z=2*e.clientX/W,Y=2*e.clientY/H};b.onkeyup=function(e,g){U=-U};setInterval(M,16)
 
 		</script>
 	</body>
