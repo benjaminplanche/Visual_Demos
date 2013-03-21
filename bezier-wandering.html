@@ -1,15 +1,21 @@
 <!doctype html>
 <html>
 	<head>
-		<title>Bezier's Wandering</title>
 		<meta charset="utf-8">
+		
+        	<meta content="Benjamin Bill Planche" name="author">
+		<meta content="Portfolio of Benjamin (Bill) Planche, aka Aldream. About image processing, computer graphics, web experiments,..." name="description">
+		<meta content="aldream, benjamin, planche, demo, web, image, graphics, math, sandbox" name="keywords">
+		<meta content="index,follow" name="robots">
+	        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	        <title>Aldream - Beziering</title>
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 		<script src="lib/kinetic-v4.3.0.min.js"></script>
 		<style>
-			body {
+		body {
 			margin: 0px;
 			padding: 0px;
-		  }
+		 }
 		</style>
 	</head>
 	<body>
@@ -317,6 +323,15 @@
 			obj.attachEvent( "on" + evt, fn );
 		}
 	}
+	function removeEvent( obj, evt)
+	{
+		if ( 'undefined' != typeof obj.removeEventListener ) {
+			obj.removeEventListener(evt, arguments.callee,false);
+		}
+		else if ( 'undefined' != typeof obj.detachEvent ) {
+			obj.detachEvent( "on" + evt);
+		}
+	}
 	
 		
 	var stage = new Kinetic.Stage({
@@ -329,7 +344,9 @@
 	//var points = [{x: 100, y: 300}, {x: 500, y: 100}, {x: 700, y: 400}, {x: 400, y: 600}, {x: 250, y: 500}];
 	//var colors = ['black', 'blue', 'green', 'yellow', 'orange', 'red'];
 	
-	var points2 = [{x: 100, y: 300, z: 1}, {x: 500, y: 100, z: 4}, {x: 700, y: 200, z: 2}, {x: 800, y: 400, z: 3}, {x: 600, y: 500, z: 1}, {x: 400, y: 650, z: 2}, {x: 200, y: 500, z: 1} ];
+	var w = window.innerWidth;
+	var h = window.innerHeight;
+	var points2 = [{x: w/3-w/20, y: h/3, z: 1}, {x: 5*w/9-w/20, y: h/10, z: 4}, {x: 7*w/9-w/20, y: h/10, z: 2}, {x: 19*w/20, y: h/3, z: 3}, {x: 8*w/9-w/20, y: 2*h/3, z: 1}, {x: 6*w/9-w/20, y: 9*h/10, z: 2}, {x: 4*w/9-w/20, y: 2*h/3, z: 1} ];
 	var colors2 = ['black', 'marron', 'violet', 'blue', 'green', 'yellow', 'orange', 'red'];
 	var colors2Hexa = [[0x00,0x00,0x00], [0x77,0x66,0x22], [0xaa,0x00,0xaa], [0x00,0x00,0xff], [0x00,0xff,0x00], [0xff,0xff,0x00], [0xff,0x88,0x00], [0xff,0x00,0x00]];
 	var colors3Hexa = [[0xaa,0x00,0xaa], [0x00,0x00,0xff], [0x00,0xff,0x00], [0xff,0xff,0x00], [0xff,0xaa,0x00], [0xff,0x00,0x00], [0x00,0x00,0x00], [0x77,0x66,0x22]];
@@ -350,8 +367,7 @@
 	var mouseMovement = [0,0];
 	var prevMousePos = [0,0];
 
-	addEvent(document.getElementById( 'demo' ), 'mouseover', function(e)
-    {
+	function StartDemo(e) {
 		mouseMovement[0] = 0;
 		mouseMovement[1] = 0;
 		prevMousePos[0] = e.clientX;
@@ -359,25 +375,40 @@
 		demo2.setMovementFunction(move);
 		demo2.setColors(colors2Hexa, 1000);
 		demo2.setOpacities(opacities2, 8000);
-    });
-	addEvent(document.getElementById( 'demo' ), 'mouseout', function(e)
-    {
+		
+		
+		addEvent(document.getElementsByTagName( 'body' )[0], 'mousemove', function(e)
+		{
+			mouseMovement[0] = e.clientX - prevMousePos[0];
+			mouseMovement[1] = prevMousePos[1] - e.clientY;
+			prevMousePos[0] = e.clientX;
+			prevMousePos[1] = e.clientY;
+		});
+    	};
+	
+	function StopDemo(e) {
+		removeEvent(document.getElementsByTagName( 'body' )[0], 'mousemove');
 		demo2.setMovementFunction(null);
 		demo2.setColors(colorsGreyHexa, 1000);
 		demo2.setOpacities(opacitiesGrey, 8000);
-    });
-	addEvent(document.getElementById( 'demo' ), 'mousemove', function(e)
-    {
-		mouseMovement[0] = e.clientX - prevMousePos[0];
-		mouseMovement[1] = prevMousePos[1] - e.clientY;
-		prevMousePos[0] = e.clientX;
-		prevMousePos[1] = e.clientY;
-    });
+    	};
+	
+	function HandleDemo(e) {
+		if (HandleDemo.isOn) {
+			StopDemo(e);
+		}
+		else {
+			StartDemo(e);
+		}
+		HandleDemo.isOn = !HandleDemo.isOn;
+	}
+	
+	addEvent(document.getElementById( 'demo' ), 'click', HandleDemo);
 	
 	var move = function(frame, points) {
 		var t1 = frame*delta1;
 		var t2 = frame*delta2;
-	
+		
 		for(var i = 0; i < points.length; i++) {
 			var vect = [prevMousePos[0]-points[i].x, prevMousePos[1]-points[i].y];
 			var dist = Math.sqrt(vect[0]*vect[0] + vect[1]*vect[1])/100;
@@ -399,6 +430,7 @@
 	
 	var demo2 = new BezierWandering(points2, stage, 10000, colorsGreyHexa, opacitiesGrey, strokes2, 10, null);
 	demo2.start();
+
 		</script>
 	</body>
 </html>
