@@ -10,12 +10,12 @@
 	        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 	        <title>Aldream - Beziering</title>
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-		<script src="lib/kinetic-v4.3.0.min.js"></script>
+		<script src="lib/kinetic-v4.3.3.min.js"></script>
 		<style>
-		body {
+			body {
 			margin: 0px;
 			padding: 0px;
-		 }
+		  }
 		</style>
 	</head>
 	<body>
@@ -367,7 +367,8 @@
 	var mouseMovement = [0,0];
 	var prevMousePos = [0,0];
 
-	function StartDemo(e) {
+	function StartDemo(e)
+    {
 		mouseMovement[0] = 0;
 		mouseMovement[1] = 0;
 		prevMousePos[0] = e.clientX;
@@ -384,14 +385,15 @@
 			prevMousePos[0] = e.clientX;
 			prevMousePos[1] = e.clientY;
 		});
-    	};
+    };
 	
-	function StopDemo(e) {
+	function StopDemo(e)
+    {
 		removeEvent(document.getElementsByTagName( 'body' )[0], 'mousemove');
 		demo2.setMovementFunction(null);
 		demo2.setColors(colorsGreyHexa, 1000);
 		demo2.setOpacities(opacitiesGrey, 8000);
-    	};
+    };
 	
 	function HandleDemo(e) {
 		if (HandleDemo.isOn) {
