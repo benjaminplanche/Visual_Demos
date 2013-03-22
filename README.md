@@ -29,8 +29,9 @@ The landscape is generated using a mix between the <a href="https://en.wikipedia
 
 Colors are applied taking into account the height (water < beach < vegetation < snow) and an rough estimation of the incline for the luminosity. By playing with those parameters and using the flexibility of the HSL color system, it is thus possible to create various nuances of vegetation (meadows for the sun-bathed hills, forests in the coombs, alpines above <small>- imagination can be required here</small>) or to simulate the effect of the sun on the snow (only found in the shadows for the lower altitudes).
 
-<small>*By the way, don't fly to close to the surface or you might get entangled in the mesh and unravel the whole world (well, you will actually just get some threads spoiling the view)... Also, if you keep zooming, you will eventually reach a <em>negative distance</em>, inverting the controls. Both are harmless, but now you won't be surprised. I hadn't enough bytes left to better handle the zoom, sorry.
-As for "why only stroking and not filling the faces?", the answer is simple: I couldn't afford to do both. I found the gaps left by stroking interesting, like a reminder of the "substantial" part of emptiness in the universe fabric. ;-)*</small>
+<small>*By the way, don't fly to close to the surface or you might get entangled in the mesh and unravel the whole world (well, you will actually just get some threads spoiling the view)... Also, if you keep zooming, you will eventually reach a <em>negative distance</em>, inverting the controls. Both are harmless, but now you won't be surprised. I hadn't enough bytes left to better handle the zoom, sorry.*
+
+*As for "why only stroking and not filling the faces?", the answer is simple: I couldn't afford to do both. I found the gaps left by stroking interesting, like a reminder of the "substantial" part of emptiness in the universe fabric. ;-)*</small>
 
 
 ## Morphose
