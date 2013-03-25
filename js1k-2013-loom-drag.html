@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html>
   <head>
@@ -111,19 +112,18 @@ for(var l=1;l<9;l++){ // Our most-detailed map (map[8]) will thus be a 257x257 m
 				zCol = z3 - incCoef; // Useful value to make the boundary snow/vegetation less obvious/more random, and more importantly to somehow reduce the melting-point for poorly-lighted faces. Or how to cheaply simulate the illumination effect on snow.
 			mapFaces[l][trId].push('hsl('+[ // Using coercion for the ","
 				99*( // Hue
-					(SNOW_LVL_INC<zCol)? 1 	// Yellowish-greenish hue (snow-white with the good lightness, or muddy-alpine-green otherwise. Fine enough.)
-					: (WATER_LVL<z2)? 7/z2 	// Greenish
+					(WATER_LVL<z2)? 6/z2 	// Greenish
 					: 2 					// Blue
 					),
 				32*( // Saturation	
 					(WATER_LVL<z2)? incCoef*2/zCol	// Ground saturation: medium, depending on the incline/height, giving us different kinds of veget.
 					: zCol							// Water saturation: high
 					)+'%',
-				44*( // Lightness
-					(SNOW_LVL_INC<zCol)? incCoef// Bright snow
-					: (BEACH_LVL<z2)? incCoef/4	// Normal vegetation
-					: (WATER_LVL<z2)? incCoef	// Bright sand
-					: 1-Math.random()/5			// Water with random waves
+				30*( // Lightness
+					(SNOW_LVL_INC<zCol)? incCoef/.6		// Bright snow
+					: (BEACH_LVL<z2)? incCoef*incCoef/7	// Normal vegetation
+					: (WATER_LVL<z2)? incCoef/.6		// Bright sand
+					: 2-Math.random()/3					// Water with random waves
 					)
 			]+'%)');
 			trId++;
@@ -160,9 +160,15 @@ function Paint(){ // See my other demo for details
 //	clearTimeout(refreshPaint);
 //	Paint(wantMove^=3);
 //}
-b.onmousedown=function(){wantMove=3,refreshPaint=setInterval(Paint,16)}
-b.onmouseup=function(){wantMove=0,clearTimeout(refreshPaint),Paint()}
-
+// Drag to move around:
+b.onmousedown=function(){
+	wantMove=3;
+	clearInterval(refreshPaint); refreshPaint=setInterval(Paint,16);
+} // We have to clear the Interval in the case the user release the click out of the body.
+b.onmouseup=function(){
+	wantMove=0;
+	clearInterval(refreshPaint); Paint();
+}
 b.onmousemove = function(H) {	// We tie the mouse position with the camera orientation.
 	angleYaw = 2*H.clientX/wWidth;
 	angleHead = 2*H.clientY/wHeight
@@ -170,7 +176,7 @@ b.onmousemove = function(H) {	// We tie the mouse position with the camera orien
 b.onmousewheel=b.onwheel = function(H) { // Zooming with the wheel, cross-browser solution
     cameraDistance += H.deltaY | -H.wheelDeltaY/40;
 }
-Paint(wantMove^=3);
+Paint();
 */
 /*
 How to minify the demo? Tricks I learned ...
@@ -264,14 +270,22 @@ b.onmousewheel=b.onwheel=function(H,S,L){
 e()
 */
 
-/* Ready to be jsCrushed (1365B to 1026B):
-d=[];g=[];R=r=20;Y=.6;g[T=l=0]=[o=2,4,Z=9,h=8];for(D=[];8>l;){i=p=2*o-1;d[++l]=[];h/=2;for(g[l]=[];i--;)for(j=p;j--;v=g[l-1][u=o*(i/2|0)+j/2|0],w=i*p+j,g[l][w]=d[l][w]=(i%2?j%2?(v*2+d[l][w+p]+d[l][w+1])/4:(v+g[l-1][u+o])/2:j%2?(v+g[l-1][u+1])/2:v)+h*(Y-Math.random()),d[l][w]=6>d[l][w]?6:d[l][w]);o=i=p--;i--;r/=2;for(D[l]=[];i--;)for(j=p;j--;){;for(k=2;k--;D[l][Z++]=[m=i*r-10,q=j*r-10,d[l][u=o*i+j],(i+k)*r-10,(j+1-k)*r-10,z=d[l][u+1+k*p],m+r,q+r,y=d[l][u+o+1],x=2+(z-y)/r,"hsl("+[99*(7<(y-=x)?1:6<z?7/z:2),32*(6<z?x*2/y:y)+"%",40*(7<y?x:6.04<z?x/3:6<z?x:x*Y-Math.random()/5)]+"%)"]);}}e=function(f,n){a.fillRect(0,0,h=c.width=innerWidth-18,r=c.height=innerHeight-21);m=-Math.cos(Z);w=-Math.sin(Z);o=Math.cos(Y);x=Math.sin(Y);d=[];h/=2;for(l in D[8-T]){d[l]=[];for(j=9;j;v=D[8-T][l][--j]-R*o,u=D[8-T][l][--j]-R*m,t=D[8-T][l][--j]-R*w,d[l].push(z=o*v+(k=m*u+w*t)*x,(v*x-o*k)/z*r+r,(w*u-m*t)/z*h+h));d[l][9]=D[8-T][l][10]}d.sort(function(f,n){return f[3]-n[3]});
-for(l in d)a.strokeStyle=d[l][9],a.beginPath(),a.moveTo(d[l][8],d[l][7]),a.lineTo(d[l][5],d[l][4]),a.lineTo(d[l][2],d[l][1]),a.lineTo(d[l][8],d[l][7]),a.stroke()};b.onmousedown=function(f,n){T=3,i=setInterval(e,16)};b.onmouseup=function(f,n){T=0,clearInterval(i),e()};b.onmousemove=function(f,n){Z=2*f.clientX/h;Y=2*f.clientY/r};b.onmousewheel=b.onwheel=function(f,n){R+=f.deltaY|-f.wheelDeltaY/40};e()
+/* Ready to be jsCrushed (1365B to 1026B):*/
+d=[];g=[];R=r=22;Y=.6;g[T=l=0]=[o=2,5,Z=9,h=8];for(D=[];8>l;){i=p=2*o-1;d[++l]=[];h/=2;for(g[l]=[];i--;)for(j=p;j--;v=g[l-1][u=o*(i/2|0)+j/2|0],w=i*p+j,g[l][w]=d[l][w]=(i%2?j%2?(v*2+d[l][w+p]+d[l][w+1])/4:(v+g[l-1][u+o])/2:j%2?(v+g[l-1][u+1])/2:v)+h*(Y-Math.random()),d[l][w]=6>d[l][w]?6:d[l][w]);o=i=p--;i--;r/=2;for(D[l]=[];i--;)for(j=p;j--;){;for(k=2;k--;D[l][Z++]=[i*r-11,j*r-11,d[l][u=o*i+j],(i+k)*r-11,(j+1-k)*r-11,z=d[l][u+1+k*p],(i+1)*r-11,(j+1)*r-11,y=d[l][u+o+1],y-=x=2+(z-y)/r,"hsl("+[99*(6<z?7/z:2),32*(6<z?x*2/y:y)+"%",30*(7<y?x/Y:6.04<z?x*x/7:6<z?x/Y:2-Math.random()/2)]+"%)"]);}}e=function(f,n){a.fillRect(0,0,h=c.width=innerWidth-18,r=c.height=innerHeight-21);m=-Math.cos(Z);w=-Math.sin(Z);o=Math.cos(Y);x=Math.sin(Y);d=[];h/=2;for(l in D[8-T]){d[l]=[];for(j=9;j;v=D[8-T][l][--j]-R*o,u=D[8-T][l][--j]-R*m,t=D[8-T][l][--j]-R*w,d[l].push(z=o*v+(k=m*u+w*t)*x,(v*x-o*k)/z*r+r,(w*u-m*t)/z*h+h));d[l][9]=D[8-T][l][10]}d.sort(function(f,n){return f[3]-n[3]});
+for(l in d)a.strokeStyle=d[l][9],a.beginPath(),a.moveTo(d[l][8],d[l][7]),a.lineTo(d[l][5],d[l][4]),a.lineTo(d[l][2],d[l][1]),a.lineTo(d[l][8],d[l][7]),a.stroke()};b.onmousedown=function(f,n){T=3,clearInterval(i),i=setInterval(e,16)};b.onmouseup=function(f,n){T=0,clearInterval(i),e()};b.onmousemove=function(f,n){Z=2*f.clientX/h;Y=2*f.clientY/r};b.onmousewheel=b.onwheel=function(f,n){R+=f.deltaY|-f.wheelDeltaY/40};e()
+
+/* Normal Version:
+d=[];g=[];R=r=22;Y=.6;g[T=l=0]=[o=2,4,Z=8,h=7];for(D=[];8>l;){i=p=2*o-1;d[++l]=[];h/=2;for(g[l]=[];i--;)for(j=p;j--;v=g[l-1][u=o*(i/2|0)+j/2|0],w=i*p+j,g[l][w]=d[l][w]=(i%2?j%2?(v*2+d[l][w+p]+d[l][w+1])/4:(v+g[l-1][u+o])/2:j%2?(v+g[l-1][u+1])/2:v)+h*(Y-Math.random()),d[l][w]=5>d[l][w]?5:d[l][w]);o=i=p--;i--;r/=2;for(D[l]=[];i--;)for(j=p;j--;){;for(k=2;k--;D[l][Z++]=[i*r-11,j*r-11,d[l][u=o*i+j],(i+k)*r-11,(j+1-k)*r-11,z=d[l][u+1+k*p],(i+1)*r-11,(j+1)*r-11,y=d[l][u+o+1],y-=x=1+(z-y)/r*.7,"hsl("+[99*(5<z?6/z:2),55*(5<z?x/y*2:y)+"%",85*(6<y?x:5.04<z?x/3:5<z?x:.6-Math.random()/8)]+"%)"]);}}e=function(f,n){a.fillRect(0,0,h=c.width=innerWidth-18,r=c.height=innerHeight-21);m=-Math.cos(Z);w=-Math.sin(Z);o=Math.cos(Y);x=Math.sin(Y);d=[];h/=2;for(l in D[8-T]){d[l]=[];for(j=9;j;v=D[8-T][l][--j]-R*o,u=D[8-T][l][--j]-R*m,t=D[8-T][l][--j]-R*w,d[l].push(z=o*v+(k=m*u+w*t)*x,(v*x-o*k)/z*r+r,(w*u-m*t)/z*h+h));d[l][9]=D[8-T][l][10]}d.sort(function(f,n){return f[3]-n[3]});for(l in d)a.strokeStyle=d[l][9],a.beginPath(),a.moveTo(d[l][8],d[l][7]),a.lineTo(d[l][5],d[l][4]),a.lineTo(d[l][2],d[l][1]),a.lineTo(d[l][8],d[l][7]),a.stroke()};b.onmousedown=function(f,n){T=3,clearInterval(i),i=setInterval(e,16)};b.onmouseup=function(f,n){T=0,clearInterval(i),e()};b.onmousemove=function(f,n){Z=2*f.clientX/h;Y=2*f.clientY/r};b.onmousewheel=b.onwheel=function(f,n){R+=f.deltaY|-f.wheelDeltaY/40};e()
+*/
+/* High Contrast Version:
+d=[];g=[];R=r=22;Y=.6;g[T=l=0]=[o=2,4,Z=8,h=7];for(D=[];8>l;){i=p=2*o-1;d[++l]=[];h/=2;for(g[l]=[];i--;)for(j=p;j--;v=g[l-1][u=o*(i/2|0)+j/2|0],w=i*p+j,g[l][w]=d[l][w]=(i%2?j%2?(v*2+d[l][w+p]+d[l][w+1])/4:(v+g[l-1][u+o])/2:j%2?(v+g[l-1][u+1])/2:v)+h*(Y-Math.random()),d[l][w]=5>d[l][w]?5:d[l][w]);o=i=p--;i--;r/=2;for(D[l]=[];i--;)for(j=p;j--;){;for(k=2;k--;D[l][Z++]=[i*r-11,j*r-11,d[l][u=o*i+j],(i+k)*r-11,(j+1-k)*r-11,z=d[l][u+1+k*p],(i+1)*r-11,(j+1)*r-11,y=d[l][u+o+1],x=1+(z-y)/r,"hsl("+[99*(6<(y-=x)?1:5<z?7/z:2),64*(5<z?x*2/y:y)+"%",75*(6<y?x:5.04<z?x/3:5<z?x:Y-Math.random()/9)]+"%)"]);}}e=function(f,n){a.fillRect(0,0,h=c.width=innerWidth-18,r=c.height=innerHeight-21);m=-Math.cos(Z);w=-Math.sin(Z);o=Math.cos(Y);x=Math.sin(Y);d=[];h/=2;for(l in D[8-T]){d[l]=[];for(j=9;j;v=D[8-T][l][--j]-R*o,u=D[8-T][l][--j]-R*m,t=D[8-T][l][--j]-R*w,d[l].push(z=o*v+(k=m*u+w*t)*x,(v*x-o*k)/z*r+r,(w*u-m*t)/z*h+h));d[l][9]=D[8-T][l][10]}d.sort(function(f,n){return f[3]-n[3]});
+for(l in d)a.strokeStyle=d[l][9],a.beginPath(),a.moveTo(d[l][8],d[l][7]),a.lineTo(d[l][5],d[l][4]),a.lineTo(d[l][2],d[l][1]),a.lineTo(d[l][8],d[l][7]),a.stroke()};b.onmousedown=function(f,n){T=3,clearInterval(i),i=setInterval(e,16)};b.onmouseup=function(f,n){T=0,clearInterval(i),e()};b.onmousemove=function(f,n){Z=2*f.clientX/h;Y=2*f.clientY/r};b.onmousewheel=b.onwheel=function(f,n){R+=f.deltaY|-f.wheelDeltaY/40};e()
 */
 
-/* jsCrushed (1024B):*/
-_='dgR=r0;Y=.6;g[T=l=0J[o,4,Z=9,h=8];D8>l;Ki=p*oL;d[++l]hg	v==o#iV)+jVw=i*p+j,gwJ=(i%2?!*2+w+p]+w$]4:(v++o^!+$^v)+h#=6>?6:o=i=pirD	K;k;kDZ++J[m=iq=ju=o*i+j(i+k)(j$-k)z=u$+k*pmAqAy=u+o$x+(z-yr,"hsl("+[99#7<(y-=x)?1:67/z:232#6x*2/y:y)+"%",40#7<y?x:6.05x/3:6x:x*/5)]+"%)"]}}e&@fillRect(NNh=c.widOBWidOL7,r=c.hCBHC-21m=-EZw=-_Zo=EYx=_Ydh`Kdj=9;j;vo,um,tw,d.push(z=o*v+(k=m*u+w*t)*x,(v*x-o*kz*rA(w*u-m*tz*h+h)9J10]}d.sort(return f[3]-n[3]}`d)Style=9@begPaO(@movF8Q75Q42Q18Q7]Udown&T=3,i=sete,16)up&T=NclearieUmove&ZX/h;YY/r=b.on&R+=f.dG|-f.DG/40};eU[function(f,nK};b.onmouse=--j]-R*]@lFfor(=[];MaO.	i)j=p;jd*rLNg[lL][u=2D[8-T]Y-randomU*f.client],);--;wheelInterval(in@strokew]<z?[l]/;)/),!j%2?(v#*($+1&=@a.A+r,B=nerCeightEcos(FeTo(GeltaYJ]=K){L-1N0,OthQU()V/2|0^]2:_s(`l  ';for(Y in $='`_^VUQONLKJGFECBA@&$#!	')with(_.split($[Y]))_=join(pop());eval(_)
 
+/* jsCrushed (1024B):
+_='dgR=r0;Y=.6;g[T=l=0J[o,4,Z=9,h=8];D8>l;Ki=p*oL;d[++l]hg	v==o#iV)+jVw=i*p+j,gwJ=(i%2?!*2+w+p]+w$]4:(v++o^!+$^v)+h#=6>?6:o=i=pirD	K;k;kDZ++J[m=iq=ju=o*i+j(i+k)(j$-k)z=u$+k*pmAqAy=u+o$x+(z-yr,"hsl("+[99#7<(y-=x)?1:67/z:232#6x*2/y:y)+"%",40#7<y?x:6.05x/3:6x:x*/5)]+"%)"]}}e&@fillRect(NNh=c.widOBWidOL7,r=c.hCBHC-21m=-EZw=-_Zo=EYx=_Ydh`Kdj=9;j;vo,um,tw,d.push(z=o*v+(k=m*u+w*t)*x,(v*x-o*kz*rA(w*u-m*tz*h+h)9J10]}d.sort(return f[3]-n[3]}`d)Style=9@begPaO(@movF8Q75Q42Q18Q7]Udown&T=3,i=sete,16)up&T=NclearieUmove&ZX/h;YY/r=b.on&R+=f.dG|-f.DG/40};eU[function(f,nK};b.onmouse=--j]-R*]@lFfor(=[];MaO.	i)j=p;jd*rLNg[lL][u=2D[8-T]Y-randomU*f.client],);--;wheelInterval(in@strokew]<z?[l]/;)/),!j%2?(v#*($+1&=@a.A+r,B=nerCeightEcos(FeTo(GeltaYJ]=K){L-1N0,OthQU()V/2|0^]2:_s(`l  ';for(Y in $='`_^VUQONLKJGFECBA@&$#!	')with(_.split($[Y]))_=join(pop());eval(_)
+*/
 		</script>
 	</body>
 </html>
