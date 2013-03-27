@@ -2,7 +2,7 @@
 <!doctype html>
 <html>
   <head>
-  	<title>JS1k, 1k demo submission [ID]</title>
+		<title>JS1k, 1k demo submission [ID]</title>
 		<meta charset="utf-8" />
 	</head>
 	<body>
@@ -156,24 +156,24 @@ function Paint(){ // See my other demo for details
 		a.stroke()
 	//refreshPaint=wantMove? setTimeout(Paint,16) : 0;
 };
-//onclick = function() { // We change the view mode on click.
+//b.onclick = function() { // We change the view mode on click.
 //	clearTimeout(refreshPaint);
 //	Paint(wantMove^=3);
 //}
 // Drag to move around:
-onmousedown=function(){
+b.onmousedown=function(){
 	wantMove=3;
 	clearInterval(refreshPaint); refreshPaint=setInterval(Paint,16);
 } // We have to clear the Interval in the case the user release the click out of the body.
-onmouseup=function(){
+b.onmouseup=function(){
 	wantMove=0;
 	clearInterval(refreshPaint); Paint();
 }
-onmousemove = function(H) {	// We tie the mouse position with the camera orientation.
+b.onmousemove = function(H) {	// We tie the mouse position with the camera orientation.
 	angleYaw = 2*H.clientX/wWidth;
 	angleHead = 2*H.clientY/wHeight
 }
-onmousewheel=onwheel = function(H) { // Zooming with the wheel, cross-browser solution
+b.onmousewheel=b.onwheel = function(H) { // Zooming with the wheel, cross-browser solution
     cameraDistance += H.deltaY | -H.wheelDeltaY/40;
 }
 Paint();
@@ -181,7 +181,7 @@ Paint();
 /*
 How to minify the demo? Tricks I learned ...
 	- Closure Compiler and JsCrush are your friends
-	- Check githucom/jed/140bytes/wiki/Byte-saving-techniques to learn more dirty tricks.
+	- Check github.com/jed/140bytes/wiki/Byte-saving-techniques to learn more dirty tricks.
 	- Omit "var", noone will mind
 	- Inline when possible (don't use variables for 1-char-long const values, limit the number of functions, ...)
 	- Limit the size of your const (use string instead of array, 9 instead of 10, ...)
@@ -215,7 +215,7 @@ for(;l<8;){
 			d[l][w]=d[l][w] < 6?6:d[l][w]);
 	//o=p,i=--p,
 	o=i=p--,i--, // Smaller once jsCrushed
-	r/=2,D[l] = [];
+	r/=2,D[l] = []
 	for (; i--;)
 		for (j = p; j--;) {
 			for (k=2;k--; 
@@ -233,64 +233,60 @@ for(;l<8;){
 					'hsl('+[99*(7<(y-=x)?1:6<z?7/z:2),32*(6<z?x*2/y:y)+'%',44*(7<y?x:6.05<z?x/4:6<z?x:1-Math.random()/5)]+'%)']);
 		}
 }
-zBuffer = [];a.fillRect(0, 0, wid=c.width=innerWidth-17,hei=c.height=innerHeight-21), wid/=2;
+e=function(H,S,L){
+	a.fillRect(0, 0, h=c.width=innerWidth-17,r=c.height=innerHeight-21), 
+	m=-Math.cos(Z),w=-Math.sin(Z),o=Math.cos(Y),x=Math.sin(Y),d = [], h/=2
 	
-setInterval(function(H,S,L){
-	m=-Math.cos(Z),w=-Math.sin(Z),z=Math.cos(Y),x=Math.sin(Y);
-	if (T==5) { zBuffer = [];a.fillRect(0, 0, wid=c.width=innerWidth-17,hei=c.height=innerHeight-21), wid/=2; }
-	for (i = 0; i < 10000; i++) {
-		U=Math.random()*20; V=Math.random()*20;
-		U0=U/r+.5|0;V0=V/r+.5|0;
-		UR=U/r%1;VR=V/r%1;
-		W=UR*VR*d[8][I=o*U0+V0]+(1-UR)*VR*d[8][I+o]+UR*(1-VR)*d[8][I+1]+(1-UR)*(1-VR)*d[8][I+o+1];
-		
-		v=W-10-R*z, u=V-10-R*m, t=U-R*w,
-		pZ = z*v+(k=m*u+w*t)*x;
-		pY = (v*x-z*k)/pZ*hei + hei;
-		pX = (w*u-m*t)/pZ*wid + wid;
-		if (!zBuffer[J=pY*wid*2+pX] || (pZ < zBuffer[J])) {
-			zBuffer[J] = pZ;
-			v=d[8][I+(o+1)*(UR+.5|0)];u=d[8][I+1];u-=t=2+(v-u)/r;
-			a.fillStyle = "hsl("+[32*(6<v?22/v:6),32*(6<v?t*2/u:u)+"%",32*(6<u-Math.sin(R/9)?t/.6:6.05<v?t*t/7:6<v?t:2-Math.random()/3)]+"%)";
-			a.fillRect(pX, pY, 1, 1);
-		}
-    }
+	for (l in D[8-T]) {
+		d[l] = []
+		for (j = 9;j;
+			v=D[8-T][l][--j]-R*o, u=D[8-T][l][--j]-R*m, t=D[8-T][l][--j]-R*w,
+			d[l].push(z = o*v+ (k=m*u+w*t)*x,(v*x-o*k)/z*r + r,(w*u-m*t)/z*h + h));
+		d[l][9] = D[8-T][l][10]
+	}
+	d.sort(function(H,S,L){return H[3]-S[3]})
+			
+	for (l in d)
+		//a.fillStyle =
+		a.beginPath(a.strokeStyle=d[l][9]),
+		a.moveTo(d[l][8], d[l][7]),
+		a.lineTo(d[l][5], d[l][4]),
+		a.lineTo(d[l][2], d[l][1]),
+		a.lineTo(d[l][8], d[l][7]), // Smaller than closePath once jsCrushed
+		//a.fill(),
+		a.stroke()
 	//o=T?setTimeout(e,16):0
-}, 16);
-//onclick=function(H,S,L){clearTimeout(o),e(T^=3)}
-onmousedown=function(f,n){T=5};
-onmouseup=function(f,n){T=8};
-onmousemove=function(H,S,L){if(T==5)Z=2*H.clientX/wid,Y=2*H.clientY/hei}
-//onmousewheel=function(H,S,L){
+};
+//b.onclick=function(H,S,L){clearTimeout(o),e(T^=3)}
+b.onmousedown=function(H,S,L){T=3,o=setInterval(e,16)}
+b.onmouseup=function(H,S,L){T=0,clearTimeout(o),e()}
+b.onmousemove=function(H,S,L){Z=2*H.clientX/h,Y=2*H.clientY/r}
+//b.onmousewheel=function(H,S,L){
 //	R+=H.wheelDelta/99} // Not supported by FF, alas...
-//onkeydown=function(H,S,L){
+//b.onkeydown=function(H,S,L){
 //	R+=(H.which==40)-(H.which==38)} // ... so we use the arrows instead. Less elegant, and 6B heavier.
-onmousewheel=onwheel=function(H,S,L){
+b.onmousewheel=b.onwheel=function(H,S,L){
     R+=H.deltaY|-H.wheelDeltaY/40} // Cross-browser solution, but to heavy ... --Update: Now we can afford it! \o/
+e()
 */
 
 
-/* Ray Cast + Minimized + Spherical Movement + Rand for hue + No more "b." + better pattern for click handlers + d[l]->d + Z+3 + Trigo infine*/
 
+/* Minimized + Spherical Movement + Rand for hue + No more "b." + better pattern for click handlers + d[l]->d + Z+3 + Trigo infine */
 
-d=[];g=[];X=R=r=22;Y=.6;g[J=k=l=0]=[o=2,5,Z=9,T=h=8];for(D=[];8>l;){i=p=2*o-1;d=[];h/=2;for(g[++l]=[];i--;)for(j=p;j--;v=g[l-1][u=o*(i/2|0)+j/2|0],w=i*p+j,g[l][w]=d[w]=(i%2?j%2?(v*2+d[w+p]+d[w+1])/4:(v+g[l-1][u+o])/2:j%2?(v+g[l-1][u+1])/2:v)+h*(Y-Math.random()),d[w]=6>d[w]?6:d[w]);o=i=p--;i--;r/=2}g=[];a.fillRect(0,0,W=c.width=innerWidth-18,H=c.height=innerHeight-21),W/=2;setInterval(function(f){m=-Math.cos(Z),w=-Math.sin(Z),z=Math.cos(Y),x=Math.sin(Y);T||(g=[],a.fillRect(0,0,W=c.width=innerWidth-18,H=c.height=innerHeight-21),W/=2);for (j=1e4;--j;t=k-11-X*w,k=Math.random()*R-r,i=l,l=k/r+.5|0,p=h,h=k/r%1,F=p*h*d[u=o*i+l]+(1-p*h)*d[u+o*(p>h)+(h>p)],v=F-X*z,U=k-11-X*m,f=z*v+(i=m*U+w*t)*x,v=(v*x-z*i)/f*H+H,i=(w*U-m*t)/f*W+W,f<g[p=v*2*W+i]||(g[p]=f,p=d[u+o+1],F-=t=2+2*(F-d[u])/r,a.fillStyle="hsl("+[30*(6<p?R/p+Math.cos(-J/44)/t*p:6),28*(6<p?t*t/p:F)+"%",28*(6<F-Math.cos(J/11+1)?t/.6:6.05<p?t/3:6<p?t:2-Math.random()/2)]+"%)",a.fillRect(i,v,t*Math.cos(f/R),t*Math.cos(f/R))));--J},16);onmousedown=function(f){T=0};onmouseup=function(f){T=1};onmousemove=function(f){T||(Z=2*f.clientX/W,Y=2*f.clientY/H)};onmousewheel=onwheel=function(f){T||(X+=f.deltaY|-f.wheelDeltaY/40)}
+d=[];g=[];R=r=22;Y=.6;g[l=0]=[o=2,5,Z=9,T=h=8];for(D=[];8>l;){i=p=2*o-1;d=[];h/=2;for(g[++l]=[];i--;)for(j=p;j--;v=g[l-1][u=o*(i/2|0)+j/2|0],w=i*p+j,g[l][w]=d[w]=(i%2?j%2?(v*2+d[w+p]+d[w+1])/4:(v+g[l-1][u+o])/2:j%2?(v+g[l-1][u+1])/2:v)+h*(Y-Math.random()),d[w]=6>d[w]?6:d[w]);o=i=p--;i--;r/=2;for(D[l]=[];i--;)for(j=p;j--;){for(k=2;k--;D[l][Z++]=[i*r-11,j*r-11,d[u=o*i+j],(i+k)*r-11,(j+1-k)*r-11,z=d[u+1+k*p],(i+1)*r-11,(j+1)*r-11,y=d[u+o+1],y-=x=2+(z-y)/r,"hsl("+[32*(6<z?R/z-Math.random():6.2),32*(6<z?x*2/y:y)+"%",32*(6<y-1?x/Y:6.05<z?x*x/7:6<z?x:2-Math.random()/3)]+"%)"]);}}e=function(f,n){a.fillRect(0,0,h=c.width=innerWidth-18,r=c.height=innerHeight-21);g=[];h/=2;for(l in D[T]){g[l]=[];for(j=9;j;v=D[T][l][--j]-R*Math.cos(Y),u=D[T][l][--j]+R*Math.cos(Z),t=D[T][l][--j]+R*Math.sin(Z),g[l].push(z=Math.cos(Y)*v-(k=Math.cos(Z)*u+Math.sin(Z)*t)*Math.sin(Y),(v*Math.sin(Y)+Math.cos(Y)*k)/z*r+r,(Math.cos(Z)*t-Math.sin(Z)*u)/z*h+h));g[l][9]=D[T][l][10]}g.sort(function(f,n){return f[3]-n[3]});for(l in g)a.strokeStyle=g[l][9],a.beginPath(),a.moveTo(g[l][8],g[l][7]),a.lineTo(g[l][2],g[l][1]),a.lineTo(g[l][5],g[l][4]),a.lineTo(g[l][8],g[l][7]),a.stroke()};onmousedown=function(f,n){clearInterval(i),T=5,i=setInterval(e,9)};onmouseup=function(f,n){clearInterval(i),T=8,e()};onmousemove=function(f,n){Z=f.clientX/h;Y=f.clientY/r};onmousewheel=onwheel=function(f,n){R+=T==8?0:f.deltaY|-f.wheelDeltaY/60};e()
 
-
-/* Minimized + Spherical Movement + Rand for hue + No more "b." + better pattern for click handlers + d[l]->d + Z+3 + Trigo infine
-
-d=[];g=[];R=r=22;Y=.6;g[l=0]=[o=2,5,Z=9,T=h=8];for(D=[];8>l;){i=p=2*o-1;d=[];h/=2;for(g[++l]=[];i--;)for(j=p;j--;v=g[l-1][u=o*(i/2|0)+j/2|0],w=i*p+j,g[l][w]=d[w]=(i%2?j%2?(v*2+d[w+p]+d[w+1])/4:(v+g[l-1][u+o])/2:j%2?(v+g[l-1][u+1])/2:v)+h*(Y-Math.random()),d[w]=6>d[w]?6:d[w]);o=i=p--;i--;r/=2;for(D[l]=[];i--;)for(j=p;j--;){for(k=2;k--;D[l][Z++]=[i*r-11,j*r-11,d[u=o*i+j],(i+k)*r-11,(j+1-k)*r-11,z=d[u+1+k*p],(i+1)*r-11,(j+1)*r-11,y=d[u+o+1],y-=x=2+(z-y)/r,"hsl("+[32*(6<z?R/z-Math.random():6.2),32*(6<z?x*2/y:y)+"%",32*(6<y-1?x/Y:6.05<z?x*x/7:6<z?x:2-Math.random()/3)]+"%)"]);}}e=function(f,n){a.fillRect(0,0,h=c.width=innerWidth-18,r=c.height=innerHeight-21);g=[];h/=2;for(l in D[T]){g[l]=[];for(j=9;j;v=D[T][l][--j]-R*Math.cos(Y)+3,u=D[T][l][--j]+R*Math.cos(Z)*Math.sin(Y),t=D[T][l][--j]+R*Math.sin(Z)*Math.sin(Y),g[l].push(z=Math.cos(Y)*v-(k=Math.cos(Z)*u+Math.sin(Z)*t)*Math.sin(Y),(v*Math.sin(Y)+Math.cos(Y)*k)/z*r+r,(Math.cos(Z)*t-Math.sin(Z)*u)/z*h+h));g[l][9]=D[T][l][10]}g.sort(function(f,n){return f[3]-n[3]});for(l in g)a.strokeStyle=g[l][9],a.beginPath(),a.moveTo(g[l][8],g[l][7]),a.lineTo(g[l][2],g[l][1]),a.lineTo(g[l][5],g[l][4]),a.lineTo(g[l][8],g[l][7]),a.stroke()};onmousedown=function(f,n){clearInterval(i),T=5,i=setInterval(e,16)};onmouseup=function(f,n){clearInterval(i),T=8,e()};onmousemove=function(f,n){Z=2*f.clientX/h;Y=2*f.clientY/r};onmousewheel=onwheel=function(f,n){R+=f.deltaY|-f.wheelDeltaY/40};e()
-*/
 
 /* Melting Snow Version:
-d=[];g=[];R=r=21;Y=.6;g[l=0]=[o=2,5,Z=9,T=h=8];for(D=[];8>l;){i=p=2*o-1;d[++l]=[];h/=2;for(g[l]=[];i--;)for(j=p;j--;v=g[l-1][u=o*(i/2|0)+j/2|0],w=i*p+j,g[l][w]=d[l][w]=(i%2?j%2?(v*2+d[l][w+p]+d[l][w+1])/4:(v+g[l-1][u+o])/2:j%2?(v+g[l-1][u+1])/2:v)+h*(Y-Math.random()),d[l][w]=6>d[l][w]?6:d[l][w]);o=i=p--;i--;r/=2;for(D[l]=[];i--;)for(j=p;j--;){for(k=2;k--;D[l][Z++]=[i*r-9,j*r-9,d[l][u=o*i+j],(i+k)*r-9,(j+1-k)*r-9,d[l][u+1+k*p],(i+1)*r-9,(j+1)*r-9,d[l][u+o+1]]);}}e=function(f,n){a.fillRect(0,0,h=c.width=innerWidth-18,r=c.height=innerHeight-21);m=-Math.cos(Z);w=-Math.sin(Z);o=Math.cos(Y);x=Math.sin(Y);d=[];h/=2;for(l in D[T]){d[l]=[];for(j=9;j;v=D[T][l][--j]-R*o,u=D[T][l][--j]-R*m,t=D[T][l][--j]-R*w,d[l].push(p=o*v+(k=m*u+w*t)*x,(v*x-o*k)/p*r+r,(w*u-m*t)/p*h+h));v=D[T][l][5];u=D[T][l][8];u-=t=2+(v-u)*T;d[l][9]="hsl("+[32*(6<v?22/v:6),32*(6<v?t*2/u:u)+"%",32*(6<u-Math.sin(R/9)?t/Y:6.05<v?t*t/7:6<v?t:2-Math.random()/3)]+"%)"}d.sort(function(f,n){return f[3]-n[3]});for(l in d)a.strokeStyle=d[l][9],a.beginPath(),a.moveTo(d[l][8],d[l][7]),a.lineTo(d[l][2],d[l][1]),a.lineTo(d[l][5],d[l][4]),a.lineTo(d[l][8],d[l][7]),a.stroke()};onmousedown=function(f,n){T=5,clearInterval(i),i=setInterval(e,16)};onmouseup=function(f,n){clearInterval(i),e(T=8)};onmousemove=function(f,n){Z=2*f.clientX/h;Y=2*f.clientY/r};onmousewheel=onwheel=function(f,n){R+=f.deltaY|-f.wheelDeltaY/40};e()
+d=[];g=[];R=r=21;Y=.6;g[l=0]=[o=2,5,Z=9,T=h=8];for(D=[];8>l;){i=p=2*o-1;d[++l]=[];h/=2;for(g[l]=[];i--;)for(j=p;j--;v=g[l-1][u=o*(i/2|0)+j/2|0],w=i*p+j,g[l][w]=d[l][w]=(i%2?j%2?(v*2+d[l][w+p]+d[l][w+1])/4:(v+g[l-1][u+o])/2:j%2?(v+g[l-1][u+1])/2:v)+h*(Y-Math.random()),d[l][w]=6>d[l][w]?6:d[l][w]);o=i=p--;i--;r/=2;for(D[l]=[];i--;)for(j=p;j--;){for(k=2;k--;D[l][Z++]=[i*r-9,j*r-9,d[l][u=o*i+j],(i+k)*r-9,(j+1-k)*r-9,d[l][u+1+k*p],(i+1)*r-9,(j+1)*r-9,d[l][u+o+1]]);}}e=function(f,n){a.fillRect(0,0,h=c.width=innerWidth-18,r=c.height=innerHeight-21);m=-Math.cos(Z);w=-Math.sin(Z);o=Math.cos(Y);x=Math.sin(Y);d=[];h/=2;for(l in D[T]){d[l]=[];for(j=9;j;v=D[T][l][--j]-R*o,u=D[T][l][--j]-R*m,t=D[T][l][--j]-R*w,d[l].push(p=o*v+(k=m*u+w*t)*x,(v*x-o*k)/p*r+r,(w*u-m*t)/p*h+h));v=D[T][l][5];u=D[T][l][8];u-=t=2+(v-u)*T;d[l][9]="hsl("+[32*(6<v?22/v:6),32*(6<v?t*2/u:u)+"%",32*(6<u-Math.sin(R/9)?t/Y:6.05<v?t*t/7:6<v?t:2-Math.random()/3)]+"%)"}d.sort(function(f,n){return f[3]-n[3]});for(l in d)a.strokeStyle=d[l][9],a.beginPath(),a.moveTo(d[l][8],d[l][7]),a.lineTo(d[l][2],d[l][1]),a.lineTo(d[l][5],d[l][4]),a.lineTo(d[l][8],d[l][7]),a.stroke()};b.onmousedown=function(f,n){T=5,clearInterval(i),i=setInterval(e,16)};b.onmouseup=function(f,n){clearInterval(i),e(T=8)};b.onmousemove=function(f,n){Z=2*f.clientX/h;Y=2*f.clientY/r};b.onmousewheel=b.onwheel=function(f,n){R+=f.deltaY|-f.wheelDeltaY/40};e()
 */
 
 /* Mild Version:
-d=[];g=[];R=r=22;Y=.6;g[T=l=0]=[o=2,4,Z=8,h=7];for(D=[];8>l;){i=p=2*o-1;d[++l]=[];h/=2;for(g[l]=[];i--;)for(j=p;j--;v=g[l-1][u=o*(i/2|0)+j/2|0],w=i*p+j,g[l][w]=d[l][w]=(i%2?j%2?(v*2+d[l][w+p]+d[l][w+1])/4:(v+g[l-1][u+o])/2:j%2?(v+g[l-1][u+1])/2:v)+h*(Y-Math.random()),d[l][w]=5>d[l][w]?5:d[l][w]);o=i=p--;i--;r/=2;for(D[l]=[];i--;)for(j=p;j--;){for(k=2;k--;D[l][Z++]=[i*r-11,j*r-11,d[l][u=o*i+j],(i+k)*r-11,(j+1-k)*r-11,z=d[l][u+1+k*p],(i+1)*r-11,(j+1)*r-11,y=d[l][u+o+1],y-=x=1+(z-y)/r*.7,"hsl("+[99*(5<z?6/z:2),55*(5<z?x/y*2:y)+"%",85*(6<y?x:5.04<z?x/3:5<z?x:.6-Math.random()/8)]+"%)"]);}}e=function(f,n){a.fillRect(0,0,h=c.width=innerWidth-18,r=c.height=innerHeight-21);m=-Math.cos(Z);w=-Math.sin(Z);o=Math.cos(Y);x=Math.sin(Y);d=[];h/=2;for(l in D[8-T]){d[l]=[];for(j=9;j;v=D[8-T][l][--j]-R*o,u=D[8-T][l][--j]-R*m,t=D[8-T][l][--j]-R*w,d[l].push(z=o*v+(k=m*u+w*t)*x,(v*x-o*k)/z*r+r,(w*u-m*t)/z*h+h));d[l][9]=D[8-T][l][10]}d.sort(function(f,n){return f[3]-n[3]});for(l in d)a.strokeStyle=d[l][9],a.beginPath(),a.moveTo(d[l][8],d[l][7]),a.lineTo(d[l][5],d[l][4]),a.lineTo(d[l][2],d[l][1]),a.lineTo(d[l][8],d[l][7]),a.stroke()};onmousedown=function(f,n){T=3,clearInterval(i),i=setInterval(e,16)};onmouseup=function(f,n){T=0,clearInterval(i),e()};onmousemove=function(f,n){Z=2*f.clientX/h;Y=2*f.clientY/r};onmousewheel=onwheel=function(f,n){R+=f.deltaY|-f.wheelDeltaY/40};e()
+d=[];g=[];R=r=22;Y=.6;g[T=l=0]=[o=2,4,Z=8,h=7];for(D=[];8>l;){i=p=2*o-1;d[++l]=[];h/=2;for(g[l]=[];i--;)for(j=p;j--;v=g[l-1][u=o*(i/2|0)+j/2|0],w=i*p+j,g[l][w]=d[l][w]=(i%2?j%2?(v*2+d[l][w+p]+d[l][w+1])/4:(v+g[l-1][u+o])/2:j%2?(v+g[l-1][u+1])/2:v)+h*(Y-Math.random()),d[l][w]=5>d[l][w]?5:d[l][w]);o=i=p--;i--;r/=2;for(D[l]=[];i--;)for(j=p;j--;){for(k=2;k--;D[l][Z++]=[i*r-11,j*r-11,d[l][u=o*i+j],(i+k)*r-11,(j+1-k)*r-11,z=d[l][u+1+k*p],(i+1)*r-11,(j+1)*r-11,y=d[l][u+o+1],y-=x=1+(z-y)/r*.7,"hsl("+[99*(5<z?6/z:2),55*(5<z?x/y*2:y)+"%",85*(6<y?x:5.04<z?x/3:5<z?x:.6-Math.random()/8)]+"%)"]);}}e=function(f,n){a.fillRect(0,0,h=c.width=innerWidth-18,r=c.height=innerHeight-21);m=-Math.cos(Z);w=-Math.sin(Z);o=Math.cos(Y);x=Math.sin(Y);d=[];h/=2;for(l in D[8-T]){d[l]=[];for(j=9;j;v=D[8-T][l][--j]-R*o,u=D[8-T][l][--j]-R*m,t=D[8-T][l][--j]-R*w,d[l].push(z=o*v+(k=m*u+w*t)*x,(v*x-o*k)/z*r+r,(w*u-m*t)/z*h+h));d[l][9]=D[8-T][l][10]}d.sort(function(f,n){return f[3]-n[3]});for(l in d)a.strokeStyle=d[l][9],a.beginPath(),a.moveTo(d[l][8],d[l][7]),a.lineTo(d[l][5],d[l][4]),a.lineTo(d[l][2],d[l][1]),a.lineTo(d[l][8],d[l][7]),a.stroke()};b.onmousedown=function(f,n){T=3,clearInterval(i),i=setInterval(e,16)};b.onmouseup=function(f,n){T=0,clearInterval(i),e()};b.onmousemove=function(f,n){Z=2*f.clientX/h;Y=2*f.clientY/r};b.onmousewheel=b.onwheel=function(f,n){R+=f.deltaY|-f.wheelDeltaY/40};e()
 */
 /* High Contrast Version:
 d=[];g=[];R=r=22;Y=.6;g[T=l=0]=[o=2,4,Z=8,h=7];for(D=[];8>l;){i=p=2*o-1;d[++l]=[];h/=2;for(g[l]=[];i--;)for(j=p;j--;v=g[l-1][u=o*(i/2|0)+j/2|0],w=i*p+j,g[l][w]=d[l][w]=(i%2?j%2?(v*2+d[l][w+p]+d[l][w+1])/4:(v+g[l-1][u+o])/2:j%2?(v+g[l-1][u+1])/2:v)+h*(Y-Math.random()),d[l][w]=5>d[l][w]?5:d[l][w]);o=i=p--;i--;r/=2;for(D[l]=[];i--;)for(j=p;j--;){for(k=2;k--;D[l][Z++]=[i*r-11,j*r-11,d[l][u=o*i+j],(i+k)*r-11,(j+1-k)*r-11,z=d[l][u+1+k*p],(i+1)*r-11,(j+1)*r-11,y=d[l][u+o+1],x=1+(z-y)/r,"hsl("+[99*(6<(y-=x)?1:5<z?7/z:2),64*(5<z?x*2/y:y)+"%",75*(6<y?x:5.04<z?x/3:5<z?x:Y-Math.random()/9)]+"%)"]);}}e=function(f,n){a.fillRect(0,0,h=c.width=innerWidth-18,r=c.height=innerHeight-21);m=-Math.cos(Z);w=-Math.sin(Z);o=Math.cos(Y);x=Math.sin(Y);d=[];h/=2;for(l in D[8-T]){d[l]=[];for(j=9;j;v=D[8-T][l][--j]-R*o,u=D[8-T][l][--j]-R*m,t=D[8-T][l][--j]-R*w,d[l].push(z=o*v+(k=m*u+w*t)*x,(v*x-o*k)/z*r+r,(w*u-m*t)/z*h+h));d[l][9]=D[8-T][l][10]}d.sort(function(f,n){return f[3]-n[3]});
-for(l in d)a.strokeStyle=d[l][9],a.beginPath(),a.moveTo(d[l][8],d[l][7]),a.lineTo(d[l][5],d[l][4]),a.lineTo(d[l][2],d[l][1]),a.lineTo(d[l][8],d[l][7]),a.stroke()};onmousedown=function(f,n){T=3,clearInterval(i),i=setInterval(e,16)};onmouseup=function(f,n){T=0,clearInterval(i),e()};onmousemove=function(f,n){Z=2*f.clientX/h;Y=2*f.clientY/r};onmousewheel=onwheel=function(f,n){R+=f.deltaY|-f.wheelDeltaY/40};e()
+for(l in d)a.strokeStyle=d[l][9],a.beginPath(),a.moveTo(d[l][8],d[l][7]),a.lineTo(d[l][5],d[l][4]),a.lineTo(d[l][2],d[l][1]),a.lineTo(d[l][8],d[l][7]),a.stroke()};b.onmousedown=function(f,n){T=3,clearInterval(i),i=setInterval(e,16)};b.onmouseup=function(f,n){T=0,clearInterval(i),e()};b.onmousemove=function(f,n){Z=2*f.clientX/h;Y=2*f.clientY/r};b.onmousewheel=b.onwheel=function(f,n){R+=f.deltaY|-f.wheelDeltaY/40};e()
 */
 
 
