@@ -216,35 +216,24 @@ for(;l<8;){
 	//o=p,i=--p,
 	o=i=p--,i--, // Smaller once jsCrushed
 	r/=2,D[l] = [];
-	for (; i--;)
-		for (j = p; j--;) {
-			for (k=2;k--; 
-				D[l][Z++] = [
-					m=i*r-9,
-					q=j*r-9,
-					d[l][u=o*i+j],
-					(i+k)*r-9, // Z%2 = k
-					(j+1-k)*r-9,
-					z=d[l][u+1+k*p], // u+1+k*p = u+(Z%2)?1:o
-					m+r,
-					q+r,
-					y=d[l][u+o+1],
-					x=2+(z-y)/r,
-					'hsl('+[99*(7<(y-=x)?1:6<z?7/z:2),32*(6<z?x*2/y:y)+'%',44*(7<y?x:6.05<z?x/4:6<z?x:1-Math.random()/5)]+'%)']);
-		}
 }
 zBuffer = [];a.fillRect(0, 0, wid=c.width=innerWidth-17,hei=c.height=innerHeight-21), wid/=2;
 	
 setInterval(function(H,S,L){
 	m=-Math.cos(Z),w=-Math.sin(Z),z=Math.cos(Y),x=Math.sin(Y);
 	if (T==5) { zBuffer = [];a.fillRect(0, 0, wid=c.width=innerWidth-17,hei=c.height=innerHeight-21), wid/=2; }
-	for (i = 0; i < 10000; i++) {
-		U=Math.random()*20; V=Math.random()*20;
+	for (i = 0; i < 1e4; i++) {
+		U=Math.random()*20-r; V=Math.random()*20-r;
 		U0=U/r+.5|0;V0=V/r+.5|0;
 		UR=U/r%1;VR=V/r%1;
-		W=UR*VR*d[8][I=o*U0+V0]+(1-UR)*VR*d[8][I+o]+UR*(1-VR)*d[8][I+1]+(1-UR)*(1-VR)*d[8][I+o+1];
+		//W=UR*VR*d[8][I=o*U0+V0]+(1-UR)*VR*d[8][I+o]+UR*(1-VR)*d[8][I+1]+(1-UR)*(1-VR)*d[8][I+o+1];
+		W=UR<VR;
+		Nx = (d[8][I=o*U0+V0]-d[8][I+o*W+1-W])*(W?UR:VR);
+		Ny = (d[8][I+o+1]-d[8][I+o*W+1-W])*(!W?VR:UR);
+
+		W = d[8][o*U0+V0]-Nx+Ny;
 		
-		v=W-10-R*z, u=V-10-R*m, t=U-R*w,
+		v=W-R*z, u=V-10-R*m, t=U-10-R*w,
 		pZ = z*v+(k=m*u+w*t)*x;
 		pY = (v*x-z*k)/pZ*hei + hei;
 		pX = (w*u-m*t)/pZ*wid + wid;
@@ -269,11 +258,10 @@ onmousewheel=onwheel=function(H,S,L){
     R+=H.deltaY|-H.wheelDeltaY/40} // Cross-browser solution, but to heavy ... --Update: Now we can afford it! \o/
 */
 
+/* Ray Cast + Minimized + Spherical Movement + Rand for hue + No more "b." + better pattern for click handlers + d[l]->d + Z+3 + Trigo infine
+*/
 
-/* Ray Cast + Minimized + Spherical Movement + Rand for hue + No more "b." + better pattern for click handlers + d[l]->d + Z+3 + Trigo infine*/
-
-
-d=[];g=[];X=R=r=22;Y=.6;g[J=k=l=0]=[o=2,5,Z=9,T=h=8];for(D=[];8>l;){i=p=2*o-1;d=[];h/=2;for(g[++l]=[];i--;)for(j=p;j--;v=g[l-1][u=o*(i/2|0)+j/2|0],w=i*p+j,g[l][w]=d[w]=(i%2?j%2?(v*2+d[w+p]+d[w+1])/4:(v+g[l-1][u+o])/2:j%2?(v+g[l-1][u+1])/2:v)+h*(Y-Math.random()),d[w]=6>d[w]?6:d[w]);o=i=p--;i--;r/=2}g=[];a.fillRect(0,0,W=c.width=innerWidth-18,H=c.height=innerHeight-21),W/=2;setInterval(function(f){m=-Math.cos(Z),w=-Math.sin(Z),z=Math.cos(Y),x=Math.sin(Y);T||(g=[],a.fillRect(0,0,W=c.width=innerWidth-18,H=c.height=innerHeight-21),W/=2);for (j=1e4;--j;t=k-11-X*w,k=Math.random()*R-r,i=l,l=k/r+.5|0,p=h,h=k/r%1,F=p*h*d[u=o*i+l]+(1-p*h)*d[u+o*(p>h)+(h>p)],v=F-X*z,U=k-11-X*m,f=z*v+(i=m*U+w*t)*x,v=(v*x-z*i)/f*H+H,i=(w*U-m*t)/f*W+W,f<g[p=v*2*W+i]||(g[p]=f,p=d[u+o+1],F-=t=2+2*(F-d[u])/r,a.fillStyle="hsl("+[30*(6<p?R/p+Math.cos(-J/44)/t*p:6),28*(6<p?t*t/p:F)+"%",28*(6<F-Math.cos(J/11+1)?t/.6:6.05<p?t/3:6<p?t:2-Math.random()/2)]+"%)",a.fillRect(i,v,t*Math.cos(f/R),t*Math.cos(f/R))));--J},16);onmousedown=function(f){T=0};onmouseup=function(f){T=1};onmousemove=function(f){T||(Z=2*f.clientX/W,Y=2*f.clientY/H)};onmousewheel=onwheel=function(f){T||(X+=f.deltaY|-f.wheelDeltaY/40)}
+d=[];g=[];X=R=r=22;Y=.6;g[J=k=l=0]=[T=o=2,5,Z=9,h=8];for(D=[];8>l;){i=p=2*o-1;d=[];h/=2;for(g[++l]=[];i--;)for(j=p;j--;v=g[l-1][u=o*(i/2|0)+j/2|0],w=i*p+j,g[l][w]=d[w]=(i%2?j%2?(v*2+d[w+p]+d[w+1])/4:(v+g[l-1][u+o])/2:j%2?(v+g[l-1][u+1])/2:v)+h*(Y-Math.random()),d[w]=6>d[w]?6:d[w]);o=i=p--;i--;r/=2}g=[];a.fillRect(0,0,W=c.width=innerWidth-18,H=c.height=innerHeight-21),W/=2;setInterval(function(f){m=-Math.cos(Z),w=-Math.sin(Z),z=Math.cos(Y),x=Math.sin(Y);T||(g=[],a.fillRect(0,0,W=c.width=innerWidth-18,H=c.height=innerHeight-21),W/=2);for (j=1e4;--j;t=k-11-X*w,k=Math.random()*(R-2*r)+r,i=l,l=k/r+.5|0,p=h,h=k/r%1,F=h<p,F=d[u=o*i+l]+(d[u]-d[u+o*F+1-F])*(F?p:h)+(d[u+o+1]-d[u+o*F+1-F])*(!F?p:h),v=F-X*z-3,U=k-11-X*m,f=z*v+(I=m*U+w*t)*x,v=(v*x-z*I)/f*H+H,I=(w*U-m*t)/f*W+W,f+1<g[p=v*2*W+I]||(g[p]=f,p=d[u+o+1],F-=t=2+2*(F-d[u])/r,a.fillStyle="hsl("+[25*(6<p?5<F?t:25/p+Math.cos(J/44)/p*9:7),25*(6<p?t*t/p:F)+"%",25*(6<F-Math.cos(J/44-1)?t/.6+Math.cos(J/44):5<F?t*t/5:6.07<p?t/3:6<p?t:2-Math.random()/2)+9*Math.cos(J/44)*Math.cos(l/87)*Math.cos(i/37)]+"%)",a.fillRect(I,v,t/2+2-T,t/2+2-T)));++J},9);onmousedown=function(f){T=0};onmouseup=function(f){T=2};onmousemove=function(f){T||(Z=f.clientX/W,Y=f.clientY/H)};onmousewheel=onwheel=function(f){T||(X+=f.deltaY|-f.wheelDeltaY/44),X=X>9?X:9}
 
 
 /* Minimized + Spherical Movement + Rand for hue + No more "b." + better pattern for click handlers + d[l]->d + Z+3 + Trigo infine
